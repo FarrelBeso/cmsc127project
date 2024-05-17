@@ -1,6 +1,11 @@
+import mariadb from "mariadb";
 import chalk from "chalk";
 import ora from "ora";
 
+/**
+ * Get all establishments.
+ * @param {mariadb.PoolConnection} conn
+ */
 export default async function getEstablishments(conn) {
   try {
     // starting the spinner
@@ -12,7 +17,7 @@ export default async function getEstablishments(conn) {
 
     // check if establishments exist or not
     if (establishments.length === 0) {
-      console.log(chalk.blueBright("You do not have any tasks yet!"));
+      console.log(chalk.blueBright("Establishments not found."));
     } else {
       console.log(establishments);
     }
