@@ -1,6 +1,7 @@
+#!/usr/bin/env node
+
 import getEstablishments from "./commands/establishment_cmds.js";
 import getReviewsFromEstablishments from "./commands/review_cmds.js";
-
 import { Command } from "commander";
 
 const program = new Command();

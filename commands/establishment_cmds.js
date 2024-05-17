@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import ora from "ora";
-import { connectDB, disconnectDB } from "./db/connectDB.js";
+import { connectDB, disconnectDB } from "../db/connectDB.js";
 
 /**
  * Get all establishments.
@@ -24,11 +24,14 @@ export default async function getEstablishments() {
       console.log(establishments);
     }
     // finally disconnect
-    await conn.disconnectDB();
+    await disconnectDB(conn);
   } catch (error) {
     // Error Handling
     console.log("Something went wrong, Error: ", error);
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }
+
+  // close the program
+  process.exit(0);
 }

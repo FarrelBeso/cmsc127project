@@ -1,1 +1,1 @@
-import { connectDB, disconnectDB } from "./db/connectDB.js";
+import { connectDB, disconnectDB } from "../db/connectDB.js";

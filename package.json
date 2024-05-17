@@ -17,5 +17,8 @@
     "mariadb": "^3.3.0",
     "node": "^22.2.0",
     "ora": "^8.0.1"
+  },
+  "bin": {
+    "food-reviewer": "app.js"
   }
 }

@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
-import { connectDB, disconnectDB } from "./db/connectDB.js";
+import { connectDB, disconnectDB } from "../db/connectDB.js";
 
 /**
  * Get all reviews from an establishment.
@@ -43,4 +43,7 @@ export default async function getReviewsFromEstablishments() {
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }
+
+  // close the program
+  process.exit(0);
 }
