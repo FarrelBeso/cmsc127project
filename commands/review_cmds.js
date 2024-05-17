@@ -1,14 +1,16 @@
-import mariadb from "mariadb";
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import { connectDB, disconnectDB } from "./db/connectDB.js";
 
 /**
  * Get all reviews from an establishment.
- * @param {mariadb.PoolConnection} conn
  */
-export default async function getReviewsFromEstablishments(conn) {
+export default async function getReviewsFromEstablishments() {
+  let conn;
   try {
+    // connect to db
+    conn = await connectDB();
     // first query the user on the id
     const answers = await inquirer.prompt([
       {
@@ -34,9 +36,11 @@ export default async function getReviewsFromEstablishments(conn) {
     } else {
       console.log(reviews);
     }
+    await disconnectDB(conn);
   } catch (error) {
     // Error Handling
     console.log("Something went wrong, Error: ", error);
+    if (conn) await disconnectDB(conn);
     process.exit(1);
   }
 }

@@ -1,13 +1,15 @@
-import mariadb from "mariadb";
 import chalk from "chalk";
 import ora from "ora";
+import { connectDB, disconnectDB } from "./db/connectDB.js";
 
 /**
  * Get all establishments.
- * @param {mariadb.PoolConnection} conn
  */
-export default async function getEstablishments(conn) {
+export default async function getEstablishments() {
+  let conn;
   try {
+    // connect first
+    conn = await connectDB();
     // starting the spinner
     const spinner = ora("Fetching all establishments...").start();
     // fetching all the establishments from the database
@@ -21,9 +23,12 @@ export default async function getEstablishments(conn) {
     } else {
       console.log(establishments);
     }
+    // finally disconnect
+    await conn.disconnectDB();
   } catch (error) {
     // Error Handling
     console.log("Something went wrong, Error: ", error);
+    if (conn) await disconnectDB(conn);
     process.exit(1);
   }
 }
