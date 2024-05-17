@@ -2,7 +2,7 @@
 import { getEstablishments } from "./commands/establishment_cmds.js";
 import { getReviewsFromEstablishments } from "./commands/review_cmds.js";
 import { Command } from "commander";
-import { register, login } from "./commands/auth_cmds.js";
+import { register } from "./commands/auth_cmds.js";
 
 const program = new Command();
 

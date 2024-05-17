@@ -75,6 +75,8 @@ export async function register() {
  *
  * Requires the conn parameter to avoid overhead.
  * Returns a boolean whether the login is successful or not.
+ * If successful: return {success: true, user: <user info>}
+ * If not: return {success: false, msg: <error message>}
  */
 export async function login(conn) {
   try {
@@ -88,10 +90,9 @@ export async function login(conn) {
       },
     ]);
     // check if password is correct
-    const response = await conn.query(
-      "SELECT hashed_password FROM user WHERE email=?",
-      [emailInput.email]
-    );
+    const response = await conn.query("SELECT * FROM user WHERE email=?", [
+      emailInput.email,
+    ]);
     // if there are no response, then throw an error
     if (response.length === 0) {
       throw "User does not exist.";
@@ -116,10 +117,9 @@ export async function login(conn) {
 
     console.log(chalk.greenBright("Login successful!"));
 
-    return true;
+    return { success: true, user: response[0] };
   } catch (error) {
     // Error Handling
-    console.log("Something went wrong, Error: ", error);
-    return false;
+    return { success: false, msg: error };
   }
 }
