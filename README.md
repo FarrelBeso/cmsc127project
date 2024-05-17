@@ -34,6 +34,22 @@
 2. Run the app. Try to type the following for the commands available, and to see if the app now works.
    <br>
    `food-reviewer -h`
+3. Register a new user.
+   <br>
+   `food-reviewer register`
+
+## Code Explanation
+
+1. `app.js` is the index file of the application, where the commands are compiled via the `commander` package. For now, add the commands there.
+2. The folder `commands` show the possible commands that the CLI could offer, grouped into different files based on functionality and the main tables.
+3. The `db` folder has the `connectDB.js` file where it connects with the MariaDB server.
+4. The `utils` folder is for future use.
+
+## How to add more functions?
+
+1. For CLI commands that do not require authentication (for example, just viewing the contents of the database), you might refer to `getEstablishments() and getReviewsFromEstablishments()` functions as reference from the `establishment_cmds.js` and `review_cmds.js` files respectively.
+2. For those that require authentication (for example, leaving a review, or adding a new establishment), refer to the `addReviewToEstablishment()` function from `review_cmds.js` file.
+3. Once you're done adding the function, connect it in the `app.js`. Follow the format from prior commands.
 
 ## Other Info
 
