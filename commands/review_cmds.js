@@ -1,6 +1,7 @@
 import mariadb from "mariadb";
 import chalk from "chalk";
 import ora from "ora";
+import inquirer from "inquirer";
 
 /**
  * Get all reviews from an establishment.
