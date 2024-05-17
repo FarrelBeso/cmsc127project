@@ -1,4 +1,6 @@
 import mariadb from "mariadb";
+import ora from "ora";
+import chalk from "chalk";
 
 const pool = mariadb.createPool({
   host: "localhost",
