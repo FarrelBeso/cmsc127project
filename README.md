@@ -38,3 +38,8 @@
 ## Other Info
 
 Further information on the libraries used could be seen in npm documentation (npmjs.com). Do check the documentation for more information. Thank you!
+<br>
+Here are the bases for the project:
+
+1. https://www.freecodecamp.org/news/nodejs-tutorial-build-a-task-manager-cli-tool/
+2. https://mariadb.com/kb/en/getting-started-with-the-nodejs-connector/
