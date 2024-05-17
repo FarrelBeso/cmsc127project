@@ -11,10 +11,9 @@ const pool = mariadb.createPool({
 });
 
 export async function connectDB() {
-  let conn;
   try {
     const spinner = ora("Connecting to the database...").start();
-    conn = await pool.getConnection();
+    const conn = await pool.getConnection();
     spinner.stop();
     console.log(chalk.greenBright("Successfully connected to database."));
     return conn;
@@ -27,9 +26,11 @@ export async function connectDB() {
 export async function disconnectDB(conn) {
   try {
     const spinner = ora("Disconnecting from the database...").start();
-    conn.release();
+    await conn.release();
     spinner.stop();
-    console.log(chalk.greenBright("Successfully connected to database."));
+    console.log(
+      chalk.greenBright("Successfully disconnected from the database.")
+    );
   } catch (error) {
     console.log(chalk.redBright("Error: "), error);
     process.exit(1);

@@ -1,5 +1,8 @@
-import { connectDB, disconnectDB } from "./db/connectDB";
+import { connectDB, disconnectDB } from "./db/connectDB.js";
 
 // try to connect and disconnect
-connectDB();
-disconnectDB();
+const conn = await connectDB();
+await disconnectDB(conn);
+
+// finally exit
+process.exit(0);
