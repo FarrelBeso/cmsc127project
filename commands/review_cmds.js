@@ -4,26 +4,25 @@ import ora from "ora";
 
 /**
  * Get all reviews from an establishment.
- *
- * id: the id of the establishment
- *
- * Params example:
- * {
- *  id: 123
- * }
  * @param {mariadb.PoolConnection} conn
- * @param params
  */
-export default async function getReviewsFromEstablishments(conn, params) {
+export default async function getReviewsFromEstablishments(conn) {
   try {
-    // deconstruct parameters
-    const { id } = params;
+    // first query the user on the id
+    const answers = await inquirer.prompt([
+      {
+        name: "id",
+        message: "Enter the id of the establishment:",
+        type: "input",
+      },
+    ]);
+
     // starting the spinner
     const spinner = ora("Fetching reviews from establishments...").start();
     // fetching all the establishments from the database
     const reviews = await conn.query(
       "SELECT * FROM review where establishment_id=?",
-      [id]
+      [answers.id]
     );
     // stopping the spinner
     spinner.stop();

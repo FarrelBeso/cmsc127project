@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "./db/connectDB.js";
 const conn = await connectDB();
 // try to get establishments
 await getEstablishments(conn);
-await getReviewsFromEstablishments(conn, { id: 1 });
+await getReviewsFromEstablishments(conn);
 await disconnectDB(conn);
 
 // finally exit
