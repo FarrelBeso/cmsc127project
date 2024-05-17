@@ -42,7 +42,7 @@ export default async function register() {
     const spinner = ora("Creating account...").start();
     // creating account
     // hash the password first
-    const hashedPassword = bcrypt.hash(answers.password, 10);
+    const hashedPassword = await bcrypt.hash(answers.password, 10);
     await conn.query(
       "INSERT INTO user (first_name, last_name, usertype, email, hashed_password) VALUES(?, ?, ?, ?, ?)",
       [
