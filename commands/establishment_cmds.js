@@ -5,7 +5,7 @@ import { connectDB, disconnectDB } from "../db/connectDB.js";
 /**
  * Get all establishments.
  */
-export default async function getEstablishments() {
+export async function getEstablishments() {
   let conn;
   try {
     // connect first

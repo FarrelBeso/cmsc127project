@@ -9,7 +9,7 @@ import { connectDB, disconnectDB } from "../db/connectDB.js";
 /**
  * Register a user.
  */
-export default async function register() {
+export async function register() {
   let conn;
   try {
     // connect to db
@@ -73,53 +73,57 @@ export default async function register() {
 /**
  * User Login
  */
-export default async function login() {
-    let conn;
-    try {
-      // connect to db
-      conn = await connectDB();
-      // first query the user on email and password
-      const answers = await inquirer.prompt([
-        {
-          name: "email",
-          message: "Enter your email:",
-          type: "input",
-        },
-        {
-          name: "password",
-          message: "Enter your password:",
-          type: "input",
-        },
-      ]);
-  
-      // starting the spinner
-      const spinner = ora("Logging in...").start();
-      // check if password is correct
-      const response = await conn.query(
-        "SELECT hashed_password FROM user WHERE email=?", [answers.email]
-      );
-      // if there are no response, then throw an error
-      if (response.length === 0) {
-        throw "User does not exist."
-      }
-      // just get the first one
-      const isPasswordValid = await bcrypt.compare(answers.password, response[0].hashed_password);
-      if (!isPasswordValid) {
-        throw "Invalid password."
-      }
-      // stopping the spinner
-      spinner.stop();
-  
-      console.log(chalk.greenBright("Login successful!"));
-  
-      await disconnectDB(conn);
-    } catch (error) {
-      // Error Handling
-      console.log("Something went wrong, Error: ", error);
-      if (conn) await disconnectDB(conn);
-      process.exit(1);
+export async function login() {
+  let conn;
+  try {
+    // connect to db
+    conn = await connectDB();
+    // first query the user on email and password
+    const answers = await inquirer.prompt([
+      {
+        name: "email",
+        message: "Enter your email:",
+        type: "input",
+      },
+      {
+        name: "password",
+        message: "Enter your password:",
+        type: "input",
+      },
+    ]);
+
+    // starting the spinner
+    const spinner = ora("Logging in...").start();
+    // check if password is correct
+    const response = await conn.query(
+      "SELECT hashed_password FROM user WHERE email=?",
+      [answers.email]
+    );
+    // if there are no response, then throw an error
+    if (response.length === 0) {
+      throw "User does not exist.";
     }
-  
-    // close the program
-    process.exit(0);
+    // just get the first one
+    const isPasswordValid = await bcrypt.compare(
+      answers.password,
+      response[0].hashed_password
+    );
+    if (!isPasswordValid) {
+      throw "Invalid password.";
+    }
+    // stopping the spinner
+    spinner.stop();
+
+    console.log(chalk.greenBright("Login successful!"));
+
+    await disconnectDB(conn);
+  } catch (error) {
+    // Error Handling
+    console.log("Something went wrong, Error: ", error);
+    if (conn) await disconnectDB(conn);
+    process.exit(1);
   }
+
+  // close the program
+  process.exit(0);
+}

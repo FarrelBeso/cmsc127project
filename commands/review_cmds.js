@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../db/connectDB.js";
 /**
  * Get all reviews from an establishment.
  */
-export default async function getReviewsFromEstablishments() {
+export async function getReviewsFromEstablishments() {
   let conn;
   try {
     // connect to db

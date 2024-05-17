@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import getEstablishments from "./commands/establishment_cmds.js";
-import getReviewsFromEstablishments from "./commands/review_cmds.js";
+import { getEstablishments } from "./commands/establishment_cmds.js";
+import { getReviewsFromEstablishments } from "./commands/review_cmds.js";
 import { Command } from "commander";
-import register from "./commands/user_cmds.js";
+import { register, login } from "./commands/user_cmds.js";
 
 const program = new Command();
 
@@ -25,5 +25,10 @@ program
   .command("register")
   .description("Register a new user.")
   .action(register);
+
+program
+  .command("login")
+  .description("Login for the user (for commands requiring users).")
+  .action(login);
 
 program.parse();
