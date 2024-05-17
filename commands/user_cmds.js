@@ -14,7 +14,7 @@ export default async function register() {
   try {
     // connect to db
     conn = await connectDB();
-    // first query the user on the id
+    // first query the user on basic info
     const answers = await inquirer.prompt([
       {
         name: "firstName",
@@ -69,3 +69,57 @@ export default async function register() {
   // close the program
   process.exit(0);
 }
+
+/**
+ * User Login
+ */
+export default async function login() {
+    let conn;
+    try {
+      // connect to db
+      conn = await connectDB();
+      // first query the user on email and password
+      const answers = await inquirer.prompt([
+        {
+          name: "email",
+          message: "Enter your email:",
+          type: "input",
+        },
+        {
+          name: "password",
+          message: "Enter your password:",
+          type: "input",
+        },
+      ]);
+  
+      // starting the spinner
+      const spinner = ora("Logging in...").start();
+      // check if password is correct
+      const response = await conn.query(
+        "SELECT hashed_password FROM user WHERE email=?", [answers.email]
+      );
+      // if there are no response, then throw an error
+      if (response.length === 0) {
+        throw "User does not exist."
+      }
+      // just get the first one
+      const isPasswordValid = await bcrypt.compare(answers.password, response[0].hashed_password);
+      if (!isPasswordValid) {
+        throw "Invalid password."
+      }
+      // stopping the spinner
+      spinner.stop();
+  
+      console.log(chalk.greenBright("Login successful!"));
+  
+      await disconnectDB(conn);
+    } catch (error) {
+      // Error Handling
+      console.log("Something went wrong, Error: ", error);
+      if (conn) await disconnectDB(conn);
+      process.exit(1);
+    }
+  
+    // close the program
+    process.exit(0);
+  }
