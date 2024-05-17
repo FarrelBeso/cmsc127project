@@ -61,7 +61,7 @@ export async function register() {
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
-    console.log("Something went wrong, Error: ", error);
+    console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }
@@ -119,7 +119,6 @@ export async function login(conn) {
 
     return { success: true, user: response[0] };
   } catch (error) {
-    // Error Handling
     return { success: false, msg: error };
   }
 }

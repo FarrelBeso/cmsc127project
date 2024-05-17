@@ -27,7 +27,7 @@ export async function getEstablishments() {
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
-    console.log("Something went wrong, Error: ", error);
+    console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }

@@ -40,7 +40,7 @@ export async function getReviewsFromEstablishments() {
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
-    console.log("Something went wrong, Error: ", error);
+    console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }
@@ -62,6 +62,7 @@ export async function postReviewToEstablishment() {
     if (!loginResponse.success) {
       throw loginResponse.msg;
     }
+
     // first query the user if the establishment exists
     const checkPrompt = await inquirer.prompt([
       {
@@ -79,35 +80,43 @@ export async function postReviewToEstablishment() {
       throw "Establishment does not exist.";
     }
 
-    // // then we can now query for the review info
-    // const answers = await inquirer.prompt([
-    //     {
-    //       name: "rating",
-    //       message: "Enter your rating for the :",
-    //       type: "input",
-    //     },
-    //   ]);
+    // then we can now query for the review info
+    // TODO: Review description should be optional
+    const answers = await inquirer.prompt([
+      {
+        name: "rating",
+        message: "Review rating:",
+        type: "input",
+      },
+      {
+        name: "description",
+        message: "Review description:",
+        type: "input",
+      },
+    ]);
 
     // starting the spinner
-    const spinner = ora("Fetching reviews from establishments...").start();
+    const spinner = ora("Adding review...").start();
     // fetching all the establishments from the database
-    const reviews = await conn.query(
-      "SELECT * FROM review where establishment_id=?",
-      [answers.id]
+    // only review the first establishment
+    await conn.query(
+      "INSERT INTO review (rating, user_id, description, establishment_id) VALUES (...)",
+      [
+        answers.rating,
+        loginResponse.user.user_id,
+        answers.description,
+        establishments[0].establishment_id,
+      ]
     );
     // stopping the spinner
     spinner.stop();
 
-    // check if establishments exist or not
-    if (reviews.length === 0) {
-      console.log(chalk.blueBright("Reviews not found."));
-    } else {
-      console.log(reviews);
-    }
+    console.log(chalk.blueBright("Review added!"));
+
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
-    console.log("Something went wrong, Error: ", error);
+    console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }

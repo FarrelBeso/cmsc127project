@@ -4,6 +4,7 @@ import { getReviewsFromEstablishments } from "./commands/review_cmds.js";
 import { Command } from "commander";
 import { register } from "./commands/auth_cmds.js";
 
+// TODO: All inputs should be checked if valid first (input validation)
 const program = new Command();
 
 program
