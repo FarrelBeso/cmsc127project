@@ -30,7 +30,11 @@
 
 1. If you haven't imported the required modules and assuming that npm is already in your device (otherwise do check from the web how to install it), import the modules.
    <br>
-   `npm i`
-2. Run the app.
+   `npm i -g`
+2. Run the app. Try to type the following for the commands available, and to see if the app now works.
    <br>
-   `node app.js`
+   `food-reviewer -h`
+
+## Other Info
+
+Further information on the libraries used could be seen in npm documentation (npmjs.com). Do check the documentation for more information. Thank you!
