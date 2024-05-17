@@ -52,7 +52,7 @@ export async function getReviewsFromEstablishments() {
 /**
  * Leave a review to an establishment.
  */
-export async function postReviewToEstablishment() {
+export async function addReviewToEstablishment() {
   let conn;
   try {
     // connect to db
@@ -100,7 +100,7 @@ export async function postReviewToEstablishment() {
     // fetching all the establishments from the database
     // only review the first establishment
     await conn.query(
-      "INSERT INTO review (rating, user_id, description, establishment_id) VALUES (...)",
+      "INSERT INTO review (rating, user_id, description, establishment_id) VALUES (?, ?, ?, ?)",
       [
         answers.rating,
         loginResponse.user.user_id,

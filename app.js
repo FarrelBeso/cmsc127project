@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { getEstablishments } from "./commands/establishment_cmds.js";
-import { getReviewsFromEstablishments } from "./commands/review_cmds.js";
+import {
+  addReviewToEstablishment,
+  getReviewsFromEstablishments,
+} from "./commands/review_cmds.js";
 import { Command } from "commander";
 import { register } from "./commands/auth_cmds.js";
 
@@ -21,6 +24,11 @@ program
   .command("get-reviews-from-estabs")
   .description("Get all reviews from an establishment.")
   .action(getReviewsFromEstablishments);
+
+program
+  .command("add-review-to-estab")
+  .description("Add a review to an establishment.")
+  .action(addReviewToEstablishment);
 
 program
   .command("register")

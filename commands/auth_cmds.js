@@ -80,8 +80,7 @@ export async function register() {
  */
 export async function login(conn) {
   try {
-    // starting the spinner
-    const spinner = ora("Logging in...").start();
+    console.log(chalk.yellowBright("This operation requires authentication."));
     const emailInput = await inquirer.prompt([
       {
         name: "email",
@@ -89,10 +88,15 @@ export async function login(conn) {
         type: "input",
       },
     ]);
+    // starting the spinner
+    const spinner = ora("Fetching user info...").start();
     // check if password is correct
     const response = await conn.query("SELECT * FROM user WHERE email=?", [
       emailInput.email,
     ]);
+    // stopping the spinner
+    spinner.stop();
+
     // if there are no response, then throw an error
     if (response.length === 0) {
       throw "User does not exist.";
@@ -112,8 +116,6 @@ export async function login(conn) {
     if (!isPasswordValid) {
       throw "Invalid password.";
     }
-    // stopping the spinner
-    spinner.stop();
 
     console.log(chalk.greenBright("Login successful!"));
 
