@@ -16,7 +16,7 @@
    `CREATE USER foodreviewer@localhost IDENTIFIED BY 'foodreview123'`
 4. Grant access to that new user.
    <br>
-   `GRANT ALL PRIVILEGES ON food_reviewer TO foodreviewer@localhost`
+   `GRANT ALL PRIVILEGES ON food_reviewer.* TO foodreviewer@localhost`
 5. Quit as a root user.
    <br>
    `quit`
@@ -50,6 +50,7 @@
 1. For CLI commands that do not require authentication (for example, just viewing the contents of the database), you might refer to `getEstablishments() and getReviewsFromEstablishments()` functions as reference from the `establishment_cmds.js` and `review_cmds.js` files respectively.
 2. For those that require authentication (for example, leaving a review, or adding a new establishment), refer to the `addReviewToEstablishment()` function from `review_cmds.js` file.
 3. Once you're done adding the function, connect it in the `app.js`. Follow the format from prior commands.
+4. Refactoring the functions within more discrete files (since the files currently would be too long) will be done later.
 
 ## Other Info
 
