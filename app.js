@@ -16,6 +16,17 @@ program
   .description("Food reviewer CLI for MariaDB.")
   .version("1.0.0");
 
+// FEATURE 1
+program
+  .command("add-review-to-estab")
+  .description("Add a review to an establishment.")
+  .action(addReviewToEstablishment);
+
+// FEATURE 2
+
+// FEATURE 3
+
+// REPORTS
 program
   .command("get-estabs")
   .description("Get all establishments.")
@@ -31,14 +42,15 @@ program
   .description("Get all reviews from food items.")
   .action(getReviewsFromItems);
 
-program
-  .command("add-review-to-estab")
-  .description("Add a review to an establishment.")
-  .action(addReviewToEstablishment);
+// ADDITIONAL FEATURES
+
+// USERS
 
 program
   .command("register")
   .description("Register a new user.")
   .action(register);
+
+// FOOD TYPE
 
 program.parse();
