@@ -3,6 +3,7 @@ import { getEstablishments } from "./commands/establishment_cmds.js";
 import {
   addReviewToEstablishment,
   getReviewsFromEstablishments,
+  getReviewsFromItems,
 } from "./commands/review_cmds.js";
 import { Command } from "commander";
 import { register } from "./commands/auth_cmds.js";
@@ -24,6 +25,11 @@ program
   .command("get-reviews-from-estabs")
   .description("Get all reviews from an establishment.")
   .action(getReviewsFromEstablishments);
+
+program
+  .command("get-reviews-from-items")
+  .description("Get all reviews from food items.")
+  .action(getReviewsFromItems);
 
 program
   .command("add-review-to-estab")
