@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
-import { connectDB, disconnectDB } from "../db/connectDB.js";
+import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
  * View all food items from an establishment that belong to a food type {meat | veg | etc.}

@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
-import { connectDB, disconnectDB } from "../db/connectDB.js";
-import { login } from "./auth_cmds.js";
+import { connectDB, disconnectDB } from "../../../db/connectDB.js";
+import { login } from "../../additional_features/auth_cmds.js";
 
 /**
  * Leave a review to an establishment.

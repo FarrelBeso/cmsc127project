@@ -1,3 +1,3 @@
-import { addReviewToEstab } from "./addReviewToEstab";
+import { addReviewToEstab } from "./addReviewToEstab.js";
 
 export default { addReviewToEstab };

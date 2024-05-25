@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import ora from "ora";
-import { connectDB, disconnectDB } from "../db/connectDB.js";
+import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
  * View all food establishments.

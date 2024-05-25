@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { register } from "./commands/auth_cmds.js";
 
 import features from "./commands/features/index.js";
 import reports from "./commands/reports/index.js";
+import { register } from "./commands/additional_features/auth_cmds.js";
 
 // TODO: All inputs should be checked if valid first (input validation)
 const program = new Command();
