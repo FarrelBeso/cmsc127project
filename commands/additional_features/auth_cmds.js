@@ -2,7 +2,7 @@ import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
 import bcrypt from "bcrypt";
-import { connectDB, disconnectDB } from "../db/connectDB.js";
+import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 // TODO: Do not directly display the password when typing it
 // TODO: Password should be entered twice

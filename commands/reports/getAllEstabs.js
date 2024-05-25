@@ -3,9 +3,9 @@ import ora from "ora";
 import { connectDB, disconnectDB } from "../db/connectDB.js";
 
 /**
- * Get all establishments.
+ * View all food establishments.
  */
-export async function getEstablishments() {
+export async function getAllEstabs() {
   let conn;
   try {
     // connect first
