@@ -1,12 +1,9 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { register } from "./commands/auth_cmds.js";
-import { addReviewToEstab } from "./commands/features/feature_1/addReviewToEstab.js";
-import { getAllEstabs } from "./commands/reports/getAllEstabs.js";
-import { getReviewsFromEstabs } from "./commands/reports/getReviewsFromEstabs.js";
-import { getReviewsFromItems } from "./commands/reports/getReviewsFromItems.js";
-import { getItemsFromEstab } from "./commands/reports/getItemsFromEstab.js";
-import { getItemsFromEstabFoodType } from "./commands/reports/getItemsFromEstabFoodType.js";
+
+import features from "./commands/features/index.js";
+import reports from "./commands/reports/index.js";
 
 // TODO: All inputs should be checked if valid first (input validation)
 const program = new Command();
@@ -20,7 +17,7 @@ program
 program
   .command("add-review-to-estab")
   .description("Add a review to an establishment.")
-  .action(addReviewToEstab);
+  .action(features.addReviewToEstab);
 
 // FEATURE 2
 
@@ -30,27 +27,27 @@ program
 program
   .command("get-all-estabs")
   .description("Get all establishments.")
-  .action(getAllEstabs);
+  .action(reports.getAllEstabs);
 
 program
   .command("get-items-from-estab")
   .description("Get food items from an establishment.")
-  .action(getItemsFromEstab);
+  .action(reports.getItemsFromEstab);
 
 program
   .command("get-items-from-estab-food-type")
   .description("Get food items from an establishment with a given food type/s.")
-  .action(getItemsFromEstabFoodType);
+  .action(reports.getItemsFromEstabFoodType);
 
 program
   .command("get-reviews-from-estabs")
   .description("Get all reviews from an establishment.")
-  .action(getReviewsFromEstabs);
+  .action(reports.getReviewsFromEstabs);
 
 program
   .command("get-reviews-from-items")
   .description("Get all reviews from food items.")
-  .action(getReviewsFromItems);
+  .action(reports.getReviewsFromItems);
 
 // ADDITIONAL FEATURES
 
