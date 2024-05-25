@@ -13,18 +13,27 @@
    `source sampledata.sql`
 3. Create a user for the application.
    <br>
-   `CREATE USER foodreviewer@localhost IDENTIFIED BY 'foodreview123'`
+   `CREATE USER foodreviewer IDENTIFIED BY 'foodreview123'`
 4. Grant access to that new user.
    <br>
-   `GRANT ALL PRIVILEGES ON food_reviewer.* TO foodreviewer@localhost`
+   `GRANT ALL PRIVILEGES ON food_reviewer.* TO foodreviewer`
 5. Quit as a root user.
    <br>
    `quit`
 6. Double check by logging in as that new user. If you see the database, then you're ready to proceed with starting the app.
    <br>
-   `mysql -u foodreviewer@localhost -pfoodreview123`
+   `mysql -ufoodreviewer -pfoodreview123`
    <br>
    `show databases`
+
+# Troubleshooting
+
+1. If in case you can't login with the provided food reviewer user:
+
+- Restart your mysql server (depends on the OS you're using so consult the internet how to do that).
+- Login to mariaDB as a root user.
+- Drop the user (`DROP USER foodreviewer`).
+- Redo from step 2.
 
 ## Running the App
 
