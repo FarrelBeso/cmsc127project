@@ -46,7 +46,27 @@ program
 //ADDED BY ALEM^^
 
 // FEATURE 2
+program
+//ALEM vv
+  .command('add-estab')
+  .description('Add a food establishment.')
+  .action(features.feature_2.addEstab);
 
+program
+  .command('delete-estab')
+  .description('Delete a food establishment.')
+  .action(features.feature_2.deleteEstab);
+
+program
+  .command('search-estab')
+  .description('Search a food establishment.')
+  .action(features.feature_2.searchEstab);
+
+program
+  .command('update-estab')
+  .description('Update a food establishment.')
+  .action(features.feature_2.updateEstab);
+//ALEM^^
 // FEATURE 3
 
 // REPORTS
