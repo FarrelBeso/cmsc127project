@@ -34,9 +34,29 @@ export async function register() {
       {
         name: "password",
         message: "Enter your password:",
+        type: "password", // This will hide the password input
+      },
+      {
+        name: "confirmPassword",
+        message: "Confirm your password:",
+        type: "password",
+      },
+      {
+        name: "usertype",
+        message: "Enter user type (user/admin):",
         type: "input",
       },
     ]);
+
+    // Check if passwords match
+    if (answers.password !== answers.confirmPassword) {
+      throw "Passwords do not match.";
+    }
+
+    // Check if usertype is valid
+    if (!['user', 'admin'].includes(answers.usertype)) {
+      throw "Invalid user type. Please enter 'user' or 'admin'.";
+    }
 
     // starting the spinner
     const spinner = ora("Creating account...").start();
@@ -48,7 +68,7 @@ export async function register() {
       [
         answers.firstName,
         answers.lastName,
-        "user",
+        answers.usertype, // Save the user type from input
         answers.email,
         hashedPassword,
       ]
@@ -105,7 +125,7 @@ export async function login(conn) {
       {
         name: "password",
         message: "Enter your password:",
-        type: "input",
+        type: "password", // This will hide the password input
       },
     ]);
     // just get the first one
