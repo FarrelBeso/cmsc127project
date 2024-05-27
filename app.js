@@ -68,7 +68,27 @@ program
   .action(features.feature_2.updateEstab);
 //ALEM^^
 // FEATURE 3
+program
+//ALEM vv
+  .command('add-item')
+  .description('Add a food item.')
+  .action(features.feature_3.addItem);
 
+program
+  .command('delete-item')
+  .description('Delete a food item.')
+  .action(features.feature_3.deleteItem);
+
+program
+  .command('search-item')
+  .description('Search a food item.')
+  .action(features.feature_3.searchItem);
+
+program
+  .command('update-item')
+  .description('Update a food item.')
+  .action(features.feature_3.updateItem);
+  
 // REPORTS
 program
   .command("get-all-estabs")
