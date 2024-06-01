@@ -22,7 +22,7 @@ export async function getMonthReviewFromEstabs(){
       // starting the spinner
       const spinner = ora("Fetching establishment reviews...").start();
       // getting all the establishment reviews made within 30 days
-      const reviews = await conn.query("SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND establishment_id IS NOT NULL;",
+      const reviews = await conn.query("SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND establishment_id IS NOT NULL",
                                        [answers.id]);
       // stopping the spinner
       spinner.stop();
