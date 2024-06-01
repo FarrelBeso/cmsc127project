@@ -29,7 +29,7 @@ export async function getMonthReviewFromEstabs(){
 
       // check if review/s exist or not
       if (reviews.length === 0){
-        console.log(chalk.blueBright("There is no review/s within the last 30 days."));
+        console.log(chalk.blueBright("There is no review/s for the establishment within the last 30 days."));
       } else {
           console.log(reviews);
         }
