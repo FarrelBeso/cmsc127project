@@ -1,6 +1,8 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
+import { format } from "date-fns";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../../additional_features/auth_cmds.js";
 
@@ -10,24 +12,22 @@ import { login } from "../../additional_features/auth_cmds.js";
 export async function updateEstabReview() {
   let conn, spinner;
   try {
-    // connect to db
+    // login first
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success) {
       throw loginResponse.msg;
     }
 
+    // get your reviews on all establishments
     spinner = ora("Fetching your reviews...").start();
-
-    // select which reviews has been made by the user
     const userReviews = await conn.query(
       "SELECT * FROM review WHERE user_id=? AND establishment_id IS NOT NULL",
       [loginResponse.user.user_id]
     );
-
     spinner.stop();
 
+    // stop if there are no reviews yet
     if (userReviews.length === 0) {
       console.log(
         chalk.blueBright("You have no reviews made yet. Try adding one!")
@@ -35,7 +35,26 @@ export async function updateEstabReview() {
       process.exit(0);
     }
 
-    console.log(userReviews);
+    // show table
+    table = new CliTable3({
+      head: [
+        chalk.green("Review ID"),
+        chalk.green("Review Date"),
+        chalk.green("Rating"),
+        chalk.green("Description"),
+        chalk.green("Establishment ID"),
+      ],
+    });
+    for (let tuple of userReviews) {
+      table.push([
+        tuple.review_id,
+        format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
+        tuple.rating,
+        tuple.description,
+        tuple.establishment_id,
+      ]);
+    }
+    console.log(table.toString());
 
     // query the user if the establishment exists
     const establishmentIdPrompt = await inquirer.prompt([
@@ -46,21 +65,38 @@ export async function updateEstabReview() {
       },
     ]);
 
+    // fetch the reviews on that establishment
     spinner = ora("Fetching your reviews...").start();
-
     const establishmentReviews = await conn.query(
       "SELECT * FROM review WHERE user_id=? AND establishment_id=?",
       [loginResponse.user.user_id, establishmentIdPrompt.id]
     );
-
     spinner.stop();
 
+    // end if it does not exist
     if (establishmentReviews.length === 0) {
       console.log(chalk.blueBright("Establishment does not exist."));
       process.exit(0);
     }
 
-    console.log(establishmentReviews);
+    // show table of reviews to that establishment
+    table = new CliTable3({
+      head: [
+        chalk.green("Review ID"),
+        chalk.green("Review Date"),
+        chalk.green("Rating"),
+        chalk.green("Description"),
+      ],
+    });
+    for (let tuple of establishmentReviews) {
+      table.push([
+        tuple.review_id,
+        format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
+        tuple.rating,
+        tuple.description,
+      ]);
+    }
+    console.log(table.toString());
 
     // then select which review id to select
     const reviewIdPrompt = await inquirer.prompt([
@@ -71,15 +107,15 @@ export async function updateEstabReview() {
       },
     ]);
 
+    // select that review
     spinner = ora("Fetching review...").start();
-
     const review = await conn.query(
       "SELECT * FROM review WHERE review_id=? AND user_id=? AND establishment_id=?",
       [reviewIdPrompt.id, loginResponse.user.user_id, establishmentIdPrompt.id]
     );
-
     spinner.stop();
 
+    // end if it does not exist
     if (review.length === 0) {
       console.log(chalk.blueBright("Review does not exist."));
       process.exit(0);
@@ -99,9 +135,8 @@ export async function updateEstabReview() {
       },
     ]);
 
-    // starting the spinner
+    // update the review
     spinner = ora("Updating review...").start();
-    // updating the review in the database
     await conn.query(
       "UPDATE review SET rating=?, description=? WHERE establishment_id=? AND user_id=?",
       [
@@ -111,11 +146,10 @@ export async function updateEstabReview() {
         loginResponse.user.user_id,
       ]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // confirm operation
     console.log(chalk.blueBright("Review updated!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
