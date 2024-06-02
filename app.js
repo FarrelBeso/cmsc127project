@@ -18,32 +18,32 @@ program
 program
   .command("add-review-to-estab")
   .description("Add a review to an establishment.")
-  .action(features.addReviewToEstab);
+  .action(features.feature_1.addReviewToEstab);
 //ADDED BY ALEM  vv
 program
   .command("add-review-to-item")
   .description("Add a review to a food item.")
-  .action(features.addReviewToItem);
+  .action(features.feature_1.addReviewToItem);
 
 program
   .command("update-estab-review")
   .description("Update a food establishment review.")
-  .action(features.updateEstabReview);
+  .action(features.feature_1.updateEstabReview);
 
 program
   .command("update-item-review")
   .description("Update a food item review.")
-  .action(features.updateItemReview);
+  .action(features.feature_1.updateItemReview);
 
 program
   .command("delete-estab-review")
   .description("Delete a food establishment review.")
-  .action(features.deleteEstabReview);
+  .action(features.feature_1.deleteEstabReview);
 
 program
   .command("delete-item-review")
   .description("Delete a food item review.")
-  .action(features.deleteItemReview);
+  .action(features.feature_1.deleteItemReview);
 //ADDED BY ALEM^^
 
 // FEATURE 2
