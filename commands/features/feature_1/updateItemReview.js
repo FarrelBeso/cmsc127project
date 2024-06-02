@@ -22,7 +22,7 @@ export async function updateItemReview() {
     // get reviews
     spinner = ora("Fetching your reviews...").start();
     const userReviews = await conn.query(
-      "SELECT * FROM review WHERE user_id=? AND food_id IS NOT NULL",
+      "SELECT * FROM review r JOIN food_item f ON r.food_id=f.food_id WHERE r.user_id=? AND f.food_id IS NOT NULL",
       [loginResponse.user.user_id]
     );
     spinner.stop();
@@ -43,6 +43,7 @@ export async function updateItemReview() {
         chalk.green("Rating"),
         chalk.green("Description"),
         chalk.green("Food ID"),
+        chalk.green("Food Name"),
       ],
     });
     for (let tuple of userReviews) {
@@ -52,6 +53,7 @@ export async function updateItemReview() {
         tuple.rating,
         tuple.description,
         tuple.food_id,
+        tuple.name,
       ]);
     }
     console.log(table.toString());
