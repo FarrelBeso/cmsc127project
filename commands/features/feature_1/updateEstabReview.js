@@ -8,7 +8,7 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Update a review for an establishment.
  */
 export async function updateEstabReview() {
-  let conn;
+  let conn, spinner;
   try {
     // connect to db
     conn = await connectDB();
@@ -18,21 +18,69 @@ export async function updateEstabReview() {
       throw loginResponse.msg;
     }
 
+    spinner = ora("Fetching your reviews...").start();
+
+    // select which reviews has been made by the user
+    const userReviews = await conn.query(
+      "SELECT * FROM review WHERE user_id=? AND establishment_id IS NOT NULL",
+      [loginResponse.user.user_id]
+    );
+
+    spinner.stop();
+
+    if (userReviews.length === 0) {
+      console.log(
+        chalk.blueBright("You have no reviews made yet. Try adding one!")
+      );
+      process.exit(0);
+    }
+
+    console.log(userReviews);
+
     // query the user if the establishment exists
-    const checkPrompt = await inquirer.prompt([
+    const establishmentIdPrompt = await inquirer.prompt([
       {
         name: "id",
         message: "Enter the id of the establishment:",
         type: "input",
       },
     ]);
-    const establishments = await conn.query(
-      "SELECT * FROM food_establishment where establishment_id=?",
-      [checkPrompt.id]
+
+    spinner = ora("Fetching your reviews...").start();
+
+    const establishmentReviews = await conn.query(
+      "SELECT * FROM review WHERE user_id=? AND establishment_id=?",
+      [loginResponse.user.user_id, establishmentIdPrompt.id]
     );
 
-    if (establishments.length === 0) {
-      throw "Establishment does not exist.";
+    spinner.stop();
+
+    if (establishmentReviews.length === 0) {
+      console.log(chalk.blueBright("Establishment does not exist."));
+      process.exit(0);
+    }
+
+    // then select which review id to select
+    const reviewIdPrompt = await inquirer.prompt([
+      {
+        name: "id",
+        message: "Select the id of the review:",
+        type: "input",
+      },
+    ]);
+
+    spinner = ora("Fetching review...").start();
+
+    const review = await conn.query(
+      "SELECT * FROM review WHERE review_id=? AND user_id=? AND establishment_id=?",
+      [reviewIdPrompt.id, loginResponse.user.user_id, establishmentIdPrompt.id]
+    );
+
+    spinner.stop();
+
+    if (review.length === 0) {
+      console.log(chalk.blueBright("Review does not exist."));
+      process.exit(0);
     }
 
     // query for the review info to be updated
@@ -58,7 +106,7 @@ export async function updateEstabReview() {
         answers.rating,
         answers.description,
         checkPrompt.id,
-        loginResponse.user.user_id
+        loginResponse.user.user_id,
       ]
     );
     // stopping the spinner
