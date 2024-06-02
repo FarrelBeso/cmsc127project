@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
-import cliTable from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../../additional_features/auth_cmds.js";
 
@@ -47,10 +46,14 @@ export async function updateItemReview() {
       },
     ]);
 
+    spinner = ora("Fetching your reviews...").start();
+
     const foodReviews = await conn.query(
       "SELECT * FROM review WHERE user_id=? AND food_id=?",
       [loginResponse.user.user_id, foodIdPrompt.id]
     );
+
+    spinner.stop();
 
     if (foodReviews.length === 0) {
       console.log(chalk.blueBright("Food item does not exist."));
@@ -68,9 +71,14 @@ export async function updateItemReview() {
       },
     ]);
 
-    const review = await conn.query("SELECT * FROM review WHERE review_id=?", [
-      reviewIdPrompt.id,
-    ]);
+    spinner = ora("Fetching review...").start();
+
+    const review = await conn.query(
+      "SELECT * FROM review WHERE review_id=? AND user_id=? AND food_id=?",
+      [reviewIdPrompt.id, loginResponse.user.user_id, foodIdPrompt.id]
+    );
+
+    spinner.stop();
 
     if (review.length === 0) {
       console.log(chalk.blueBright("Review does not exist."));
