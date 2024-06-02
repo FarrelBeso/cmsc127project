@@ -10,10 +10,8 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 export async function searchEstab() {
   let conn, table;
   try {
-    // connect to db
+    // search query
     conn = await connectDB();
-
-    // query the user for search term
     const answers = await inquirer.prompt([
       {
         name: "searchTerm",
@@ -22,16 +20,15 @@ export async function searchEstab() {
       },
     ]);
 
-    // starting the spinner
-    const spinner = ora("Searching establishment...").start();
     // searching in the database
+    const spinner = ora("Searching establishment...").start();
     const results = await conn.query(
       "SELECT * FROM food_establishment WHERE name LIKE ?",
       [`%${answers.searchTerm.toLowerCase()}%`]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // exit early if there are none found
     if (results.length === 0) {
       console.log(chalk.blueBright("No establishments found."));
       process.exit(0);
@@ -46,7 +43,6 @@ export async function searchEstab() {
         chalk.green("Email"),
       ],
     });
-    // loop for all items
     for (let tuple of results) {
       table.push([
         tuple.establishment_id,
@@ -57,6 +53,7 @@ export async function searchEstab() {
     }
     console.log(table.toString());
 
+    // finish
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

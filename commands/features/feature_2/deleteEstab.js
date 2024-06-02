@@ -11,24 +11,21 @@ import { login } from "../../additional_features/auth_cmds.js";
 export async function deleteEstab() {
   let conn, spinner, table;
   try {
-    // connect to db
+    // login first
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success || loginResponse.user.usertype !== "admin") {
       throw "Only admin users can delete a food establishment.";
     }
 
     // show all establishments first
-    // starting the spinner
     spinner = ora("Searching establishments...").start();
-    // searching in the database
     const establishments = await conn.query(
       "SELECT * FROM food_establishment ORDER BY name"
     );
-    // stopping the spinner
     spinner.stop();
 
+    // exit if there are none
     if (establishments.length === 0) {
       console.log(chalk.blueBright("No establishments found."));
       process.exit(0);
@@ -43,7 +40,6 @@ export async function deleteEstab() {
         chalk.green("Email"),
       ],
     });
-    // loop for all items
     for (let tuple of establishments) {
       table.push([
         tuple.establishment_id,
@@ -63,7 +59,7 @@ export async function deleteEstab() {
       },
     ]);
 
-    // delete the establishment itself
+    // delete the establishment itself, alongside related content
     spinner = ora("Deleting establishment...").start();
     await conn.query(
       "DELETE FROM food_establishment WHERE establishment_id = ?",
@@ -71,8 +67,8 @@ export async function deleteEstab() {
     );
     spinner.stop();
 
+    // confirmed command
     console.log(chalk.greenBright("Food establishment deleted successfully!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

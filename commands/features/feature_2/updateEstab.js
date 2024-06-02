@@ -11,24 +11,21 @@ import { login } from "../../additional_features/auth_cmds.js";
 export async function updateEstab() {
   let conn, spinner, table;
   try {
-    // connect to db
+    // login first
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success || loginResponse.user.usertype !== "admin") {
       throw "Only admin users can update a food establishment.";
     }
 
     // show all establishments first
-    // starting the spinner
     spinner = ora("Searching establishments...").start();
-    // searching in the database
     const establishments = await conn.query(
       "SELECT * FROM food_establishment ORDER BY name"
     );
-    // stopping the spinner
     spinner.stop();
 
+    // exit early if none found
     if (establishments.length === 0) {
       console.log(chalk.blueBright("No establishments found."));
       process.exit(0);
@@ -43,7 +40,6 @@ export async function updateEstab() {
         chalk.green("Email"),
       ],
     });
-    // loop for all items
     for (let tuple of establishments) {
       table.push([
         tuple.establishment_id,
@@ -55,7 +51,6 @@ export async function updateEstab() {
     console.log(table.toString());
 
     // query the user for establishment ID
-
     const establishmentIdPrompt = await inquirer.prompt([
       {
         name: "id",
@@ -64,7 +59,7 @@ export async function updateEstab() {
       },
     ]);
 
-    // get establishment
+    // get that establishment
     spinner = ora("Fetching establishment...").start();
     const establishment = await conn.query(
       "SELECT * FROM food_establishment where establishment_id=?",
@@ -78,6 +73,7 @@ export async function updateEstab() {
       process.exit(0);
     }
 
+    // update data
     const answers = await inquirer.prompt([
       {
         name: "name",
@@ -96,18 +92,16 @@ export async function updateEstab() {
       },
     ]);
 
-    // starting the spinner
+    // update the document
     spinner = ora("Updating establishment...").start();
-    // updating the database
     await conn.query(
       "UPDATE food_establishment SET name = ?, address = ?, email = ? WHERE establishment_id = ?",
       [answers.name, answers.address, answers.email, establishmentIdPrompt.id]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // operation confirm
     console.log(chalk.greenBright("Food establishment updated successfully!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

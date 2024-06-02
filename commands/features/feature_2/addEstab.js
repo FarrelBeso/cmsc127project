@@ -11,9 +11,8 @@ import { login } from "../../additional_features/auth_cmds.js";
 export async function addEstab() {
   let conn;
   try {
-    // connect to db
+    // login first
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success || loginResponse.user.usertype !== "admin") {
       throw "Only admin users can add a food establishment.";
@@ -38,18 +37,16 @@ export async function addEstab() {
       },
     ]);
 
-    // starting the spinner
+    // insert to db
     const spinner = ora("Adding establishment...").start();
-    // inserting into the database
     await conn.query(
       "INSERT INTO food_establishment (name, address, email) VALUES (?, ?, ?)",
       [answers.name, answers.address, answers.email]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // confirm operation
     console.log(chalk.greenBright("Food establishment added successfully!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
