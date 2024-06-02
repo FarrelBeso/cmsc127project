@@ -11,26 +11,25 @@ import { login } from "../../additional_features/auth_cmds.js";
 export async function addReviewToEstab() {
   let conn, spinner, table;
   try {
-    // connect to db
+    // login first
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success) {
       throw loginResponse.msg;
     }
 
-    spinner = ora("Fetching establishments...").start();
-
     // first get all establishments available to review
+    spinner = ora("Fetching establishments...").start();
     const establishments = await conn.query("SELECT * FROM food_establishment");
-
     spinner.stop();
 
+    // end if there are no estabs to show
     if (establishments.length === 0) {
       console.log(chalk.blueBright("No establishments yet."));
       process.exit(0);
     }
 
+    // show the tables here
     table = new CliTable3({
       head: [
         chalk.green("Establishment ID"),
@@ -39,7 +38,6 @@ export async function addReviewToEstab() {
         chalk.green("Email"),
       ],
     });
-
     // loop for all items
     for (let tuple of establishments) {
       table.push([
@@ -49,7 +47,6 @@ export async function addReviewToEstab() {
         tuple.email,
       ]);
     }
-
     console.log(table.toString());
 
     // first query the user if the establishment exists
@@ -61,20 +58,21 @@ export async function addReviewToEstab() {
       },
     ]);
 
+    // get estabs
     spinner = ora("Fetching establishment...").start();
-
     const establishment = await conn.query(
       "SELECT * FROM food_establishment where establishment_id=?",
       [establishmentIdPrompt.id]
     );
-
     spinner.stop();
 
+    // end program if there are no estabs
     if (establishment.length === 0) {
       console.log(chalk.blueBright("Establishment does not exist."));
       process.exit(0);
     }
 
+    // query user abt the info of the rating
     const answers = await inquirer.prompt([
       {
         name: "rating",
@@ -88,10 +86,8 @@ export async function addReviewToEstab() {
       },
     ]);
 
-    // starting the spinner
+    // insert the review
     spinner = ora("Adding review...").start();
-    // fetching all the establishments from the database
-    // only review the first establishment
     await conn.query(
       "INSERT INTO review (rating, user_id, description, establishment_id) VALUES (?, ?, ?, ?)",
       [
@@ -101,11 +97,10 @@ export async function addReviewToEstab() {
         establishment[0].establishment_id,
       ]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // inform that review is added and we're done
     console.log(chalk.blueBright("Review added!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

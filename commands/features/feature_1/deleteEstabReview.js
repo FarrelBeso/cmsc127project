@@ -10,9 +10,7 @@ import { login } from "../../additional_features/auth_cmds.js";
 export async function deleteEstabReview() {
   let conn, spinner;
   try {
-    // connect to db
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success) {
       throw loginResponse.msg;
