@@ -11,26 +11,25 @@ import { login } from "../../additional_features/auth_cmds.js";
 export async function addReviewToItem() {
   let conn, spinner, table;
   try {
-    // connect to db
+    // login
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success) {
       throw loginResponse.msg;
     }
 
+    // fetch food items
     spinner = ora("Fetching food items...").start();
-
-    // first get all establishments available to review
     const items = await conn.query("SELECT * FROM food_item");
-
     spinner.stop();
 
+    // end if there are none to be rated
     if (items.length === 0) {
       console.log(chalk.blueBright("No food items yet."));
       process.exit(0);
     }
 
+    // show table of items to be shown
     table = new CliTable3({
       head: [
         chalk.green("Food ID"),
@@ -40,8 +39,6 @@ export async function addReviewToItem() {
         chalk.green("Establishment ID"),
       ],
     });
-
-    // loop for all items
     for (let tuple of items) {
       table.push([
         tuple.food_id,
@@ -51,7 +48,6 @@ export async function addReviewToItem() {
         tuple.establishment_id,
       ]);
     }
-
     console.log(table.toString());
 
     // first query the user if the food item exists
@@ -63,21 +59,20 @@ export async function addReviewToItem() {
       },
     ]);
 
+    // fetch the food item
     spinner = ora("Fetching food item...").start();
-
     const item = await conn.query("SELECT * FROM food_item WHERE food_id=?", [
       foodIdPrompt.id,
     ]);
-
     spinner.stop();
 
+    // end if there isnt a food item with that id
     if (item.length === 0) {
       console.log(chalk.blueBright("No food items yet."));
       process.exit(0);
     }
 
-    // then we can now query for the review info
-    // TODO: Review description should be optional
+    // review info
     const answers = await inquirer.prompt([
       {
         name: "rating",
@@ -91,10 +86,8 @@ export async function addReviewToItem() {
       },
     ]);
 
-    // starting the spinner
+    // add the review to db
     spinner = ora("Adding review...").start();
-    // fetching all the food items from the database
-    // only review the first food item
     await conn.query(
       "INSERT INTO review (rating, user_id, description, food_id) VALUES (?, ?, ?, ?)",
       [
@@ -104,11 +97,10 @@ export async function addReviewToItem() {
         item[0].food_id,
       ]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // confirm that operation is done
     console.log(chalk.blueBright("Review added!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
