@@ -10,45 +10,47 @@ export async function getItemsPriceOrder() {
   let conn;
   try {
     // connect to db
-    conn = await connectDB() {
-      // Ask user whether to arrange price list in increasing or decreasing order
-      const validSortOrder = sort === "DESC" ? "DESC" : "ASC";
-      // check
-      const foodItem = await inquirer.prompt([
-        {
-          name: "id",
-          message: "Enter the id of the establishment:",
-          type: "input",
-          validate: function(value) {
-            var valid = !isNaN(parseFloat(value));
-            return valid || "Please enter a number.";
-          },
-          filter: Number
-        },
-        {
-          name: "sortOrder",
-          message: "How would you like to arrange the food items by price?",
-          type: "list",
-          choices: ["ASC","DESC"]
-        },
-      ]);
+    conn = await connectDB();
 
-      // starting the spinner
-      const spinner = ora("Sorting and displaying food items...").start();
-      const foodItem = await conn.query("SELECT * FROM food_item WHERE establishment_id=? ORDER BY price $(validSortOrder)",
-                                        [foodItem.id, foodItem.sortOrder,]
-      );
-      // stop the spinner
-      spinner.stop();
-                
-      await disconnectDB(conn);
-      } catch (error) {
-        // Error Handling
-        console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
-        if (conn) await disconnectDB(conn);
-        process.exit(1);
-      }
+    // Ask user whether to arrange price list in increasing or decreasing order
+    const validSortOrder = sort === "DESC" ? "DESC" : "ASC";
+    // check
+    const foodItemsPrompt = await inquirer.prompt([
+      {
+        name: "id",
+        message: "Enter the id of the establishment:",
+        type: "input",
+        validate: function (value) {
+          var valid = !isNaN(parseFloat(value));
+          return valid || "Please enter a number.";
+        },
+        filter: Number,
+      },
+      {
+        name: "sortOrder",
+        message: "How would you like to arrange the food items by price?",
+        type: "list",
+        choices: ["ASC", "DESC"],
+      },
+    ]);
 
-      // close the program
-      process.exit(0);
-    }
+    // starting the spinner
+    const spinner = ora("Sorting and displaying food items...").start();
+    const foodItems = await conn.query(
+      "SELECT * FROM food_item WHERE establishment_id=? ORDER BY price $(validSortOrder)",
+      [foodItemsPrompt.id, foodItemsPrompt.sortOrder]
+    );
+    // stop the spinner
+    spinner.stop();
+
+    await disconnectDB(conn);
+  } catch (error) {
+    // Error Handling
+    console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
+    if (conn) await disconnectDB(conn);
+    process.exit(1);
+  }
+
+  // close the program
+  process.exit(0);
+}

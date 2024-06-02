@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 /**
  * Search for a food item based on type.
  */
-export async function getItemByType() {
+export async function getItemsByType() {
   let conn;
   try {
     // connect to db
@@ -25,7 +25,8 @@ export async function getItemByType() {
     const spinner = ora("Searching food item...").start();
     // searching in the database
     const results = await conn.query(
-      "SELECT * FROM food_item WHERE type LIKE ?", [`%${answers.itemType}%`]
+      "SELECT * FROM food_item WHERE type LIKE ?",
+      [`%${answers.itemType}%`]
     );
     // stopping the spinner
     spinner.stop();
@@ -34,7 +35,7 @@ export async function getItemByType() {
       console.log(chalk.redBright("No food items found."));
     } else {
       console.log(chalk.greenBright("Food items found:"));
-      results.forEach(item => {
+      results.forEach((item) => {
         console.log(`- ${item.name}, ${item.price}`);
       });
     }
