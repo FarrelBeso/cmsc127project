@@ -63,22 +63,6 @@ export async function deleteEstab() {
       },
     ]);
 
-    // removing related reviews
-    spinner = ora("Dereferencing related reviews...").start();
-    await conn.query(
-      "UPDATE review SET establishment_id=NULL WHERE establishment_id = ?",
-      [answers.id]
-    );
-    spinner.stop();
-
-    // dereferencing related food items
-    spinner = ora("Dereferencing related food items...").start();
-    await conn.query(
-      "UPDATE food_item SET establishment_id=NULL WHERE establishment_id = ?",
-      [answers.id]
-    );
-    spinner.stop();
-
     // delete the establishment itself
     spinner = ora("Deleting establishment...").start();
     await conn.query(
