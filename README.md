@@ -1,5 +1,10 @@
 # CMSC 127 Project
 
+# Latest Note
+
+I've updated the files `initialize.sql` and `sampledata.sql` for easier deletion purposes.
+Please redo the steps in the before running part of this file if you want to try the deletion functions.
+
 ## Instructions
 
 ## Before Running

@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../../additional_features/auth_cmds.js";
 
@@ -10,11 +11,10 @@ import { login } from "../../additional_features/auth_cmds.js";
 export async function addEstab() {
   let conn;
   try {
-    // connect to db
+    // login first
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
-    if (!loginResponse.success || loginResponse.user.usertype !== 'admin') {
+    if (!loginResponse.success || loginResponse.user.usertype !== "admin") {
       throw "Only admin users can add a food establishment.";
     }
 
@@ -26,33 +26,31 @@ export async function addEstab() {
         type: "input",
       },
       {
-        name: "location",
-        message: "Enter the location of the establishment:",
+        name: "address",
+        message: "Enter the address of the establishment:",
         type: "input",
       },
       {
-        name: "type",
-        message: "Enter the type of food establishment:",
+        name: "email",
+        message: "Enter the email of food establishment:",
         type: "input",
       },
     ]);
 
-    // starting the spinner
+    // insert to db
     const spinner = ora("Adding establishment...").start();
-    // inserting into the database
     await conn.query(
-      "INSERT INTO food_establishment (name, location, type) VALUES (?, ?, ?)",
-      [answers.name, answers.location, answers.type]
+      "INSERT INTO food_establishment (name, address, email) VALUES (?, ?, ?)",
+      [answers.name, answers.address, answers.email]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // confirm operation
     console.log(chalk.greenBright("Food establishment added successfully!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
-    console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
+    console.log(chalk.redBright(`Error: ${error}`));
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }
