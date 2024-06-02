@@ -25,7 +25,7 @@ export async function updateItemReview() {
       "SELECT r.review_id, r.review_date, r.rating, r.description, r.establishment_id, f.name FROM review r \
       JOIN food_item f ON r.food_id=f.food_id \
       WHERE r.user_id=? AND f.food_id IS NOT NULL \
-      ORDER BY f.name",
+      ORDER BY f.name, r.review_date DESC",
       [loginResponse.user.user_id]
     );
     spinner.stop();
@@ -143,13 +143,8 @@ export async function updateItemReview() {
     // update review
     spinner = ora("Updating review...").start();
     await conn.query(
-      "UPDATE review SET rating=?, description=? WHERE food_id=? AND user_id=?",
-      [
-        answers.rating,
-        answers.description,
-        foodIdPrompt.id,
-        loginResponse.user.user_id,
-      ]
+      "UPDATE review SET rating=?, description=? WHERE review_id=?",
+      [answers.rating, answers.description, reviewIdPrompt.id]
     );
     spinner.stop();
 

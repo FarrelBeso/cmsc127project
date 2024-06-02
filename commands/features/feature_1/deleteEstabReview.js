@@ -25,7 +25,7 @@ export async function deleteEstabReview() {
       "SELECT r.review_id, r.review_date, r.rating, r.description, r.establishment_id, e.name FROM review r \
       JOIN food_establishment e ON r.establishment_id=e.establishment_id \
       WHERE r.user_id=? AND e.establishment_id IS NOT NULL \
-      ORDER BY e.name",
+      ORDER BY e.name, r.review_date DESC",
       [loginResponse.user.user_id]
     );
     spinner.stop();
