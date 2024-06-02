@@ -33,7 +33,7 @@ export async function updateItemReview() {
       console.log(
         chalk.blueBright("You have no reviews made yet. Try adding one!")
       );
-      return;
+      process.exit(0);
     }
 
     console.log(userReviews);
@@ -54,7 +54,7 @@ export async function updateItemReview() {
 
     if (foodReviews.length === 0) {
       console.log(chalk.blueBright("Food item does not exist."));
-      return;
+      process.exit(0);
     }
 
     console.log(foodReviews);
@@ -74,7 +74,7 @@ export async function updateItemReview() {
 
     if (review.length === 0) {
       console.log(chalk.blueBright("Review does not exist."));
-      return;
+      process.exit(0);
     }
 
     // query for the review info to be updated
