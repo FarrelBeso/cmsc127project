@@ -3,6 +3,7 @@ import { Command } from "commander";
 
 import features from "./commands/features/index.js";
 import reports from "./commands/reports/index.js";
+import additional_features from "./commands/additional_features/index.js";
 import { register } from "./commands/additional_features/auth_cmds.js";
 
 // TODO: All inputs should be checked if valid first (input validation)
@@ -17,78 +18,78 @@ program
 program
   .command("add-review-to-estab")
   .description("Add a review to an establishment.")
-  .action(features.addReviewToEstab);
+  .action(features.feature_1.addReviewToEstab);
 //ADDED BY ALEM  vv
 program
-  .command('add-review-to-item')
-  .description('Add a review to a food item.')
-  .action(features.addReviewToItem);
+  .command("add-review-to-item")
+  .description("Add a review to a food item.")
+  .action(features.feature_1.addReviewToItem);
 
 program
-  .command('update-estab-review')
-  .description('Update a food establishment review.')
-  .action(features.updateEstabReview);
+  .command("update-estab-review")
+  .description("Update a food establishment review.")
+  .action(features.feature_1.updateEstabReview);
 
 program
-  .command('update-item-review')
-  .description('Update a food item review.')
-  .action(features.updateItemReview);
+  .command("update-item-review")
+  .description("Update a food item review.")
+  .action(features.feature_1.updateItemReview);
 
 program
-  .command('delete-estab-review')
-  .description('Delete a food establishment review.')
-  .action(features.deleteEstabReview);
+  .command("delete-estab-review")
+  .description("Delete a food establishment review.")
+  .action(features.feature_1.deleteEstabReview);
 
 program
-  .command('delete-item-review')
-  .description('Delete a food item review.')
-  .action(features.deleteItemReview);
+  .command("delete-item-review")
+  .description("Delete a food item review.")
+  .action(features.feature_1.deleteItemReview);
 //ADDED BY ALEM^^
 
 // FEATURE 2
 program
-//ALEM vv
-  .command('add-estab')
-  .description('Add a food establishment.')
+  //ALEM vv
+  .command("add-estab")
+  .description("Add a food establishment.")
   .action(features.feature_2.addEstab);
 
 program
-  .command('delete-estab')
-  .description('Delete a food establishment.')
+  .command("delete-estab")
+  .description("Delete a food establishment.")
   .action(features.feature_2.deleteEstab);
 
 program
-  .command('search-estab')
-  .description('Search a food establishment.')
+  .command("search-estab")
+  .description("Search a food establishment.")
   .action(features.feature_2.searchEstab);
 
 program
-  .command('update-estab')
-  .description('Update a food establishment.')
+  .command("update-estab")
+  .description("Update a food establishment.")
   .action(features.feature_2.updateEstab);
 //ALEM^^
 // FEATURE 3
 program
-//ALEM vv
-  .command('add-item')
-  .description('Add a food item.')
+  //ALEM vv
+  .command("add-item")
+  .description("Add a food item.")
   .action(features.feature_3.addItem);
 
 program
-  .command('delete-item')
-  .description('Delete a food item.')
+  .command("delete-item")
+  .description("Delete a food item.")
   .action(features.feature_3.deleteItem);
 
 program
-  .command('search-item')
-  .description('Search a food item.')
+  .command("search-item")
+  .description("Search a food item.")
   .action(features.feature_3.searchItem);
 
 program
-  .command('update-item')
-  .description('Update a food item.')
+  .command("update-item")
+  .description("Update a food item.")
   .action(features.feature_3.updateItem);
-  
+
 // REPORTS
 program
   .command("get-all-estabs")
@@ -116,14 +117,18 @@ program
   .action(reports.getReviewsFromItems);
 
 // ADDITIONAL FEATURES
-
 // USERS
-
 program
   .command("register")
   .description("Register a new user.")
   .action(register);
 
 // FOOD TYPE
+
+// MISCELLANEOUS
+program
+  .command("get-all-items")
+  .description("Get all food items.")
+  .action(additional_features.misc.getAllItems);
 
 program.parse();

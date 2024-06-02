@@ -28,7 +28,11 @@
 
 # Troubleshooting
 
-1. If in case you can't login with the provided food reviewer user:
+1. If you can't connect to database:
+
+- Simply restart your mysql server.
+
+2. If in case you can't login with the provided food reviewer user:
 
 - Restart your mysql server (depends on the OS you're using so consult the internet how to do that).
 - Login to mariaDB as a root user.
