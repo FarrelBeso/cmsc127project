@@ -8,24 +8,24 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Update a review for an establishment.
  */
 export async function deleteEstabReview() {
-  let conn, spinner;
+  let conn, spinner, table;
   try {
+    // login first
     conn = await connectDB();
     const loginResponse = await login(conn);
     if (!loginResponse.success) {
       throw loginResponse.msg;
     }
 
+    // get reviews made by user
     spinner = ora("Fetching your reviews...").start();
-
-    // select which reviews has been made by the user
     const userReviews = await conn.query(
       "SELECT * FROM review WHERE user_id=? AND establishment_id IS NOT NULL",
       [loginResponse.user.user_id]
     );
-
     spinner.stop();
 
+    // end if there are none
     if (userReviews.length === 0) {
       console.log(
         chalk.blueBright("You have no reviews made yet. Try adding one!")
@@ -33,7 +33,26 @@ export async function deleteEstabReview() {
       process.exit(0);
     }
 
-    console.log(userReviews);
+    // show table
+    table = new CliTable3({
+      head: [
+        chalk.green("Review ID"),
+        chalk.green("Review Date"),
+        chalk.green("Rating"),
+        chalk.green("Description"),
+        chalk.green("Establishment ID"),
+      ],
+    });
+    for (let tuple of userReviews) {
+      table.push([
+        tuple.review_id,
+        tuple.review_date,
+        tuple.rating,
+        tuple.description,
+        tuple.establishment_id,
+      ]);
+    }
+    console.log(table.toString());
 
     // query the user if the establishment exists
     const establishmentIdPrompt = await inquirer.prompt([
@@ -44,21 +63,38 @@ export async function deleteEstabReview() {
       },
     ]);
 
+    // fetch the reviews on that establishment
     spinner = ora("Fetching your reviews...").start();
-
     const establishmentReviews = await conn.query(
       "SELECT * FROM review WHERE user_id=? AND establishment_id=?",
       [loginResponse.user.user_id, establishmentIdPrompt.id]
     );
-
     spinner.stop();
 
+    // end if there aren't to be found
     if (establishmentReviews.length === 0) {
       console.log(chalk.blueBright("Establishment does not exist."));
       process.exit(0);
     }
 
-    console.log(establishmentReviews);
+    // show table of reviews to that establishment
+    table = new CliTable3({
+      head: [
+        chalk.green("Review ID"),
+        chalk.green("Review Date"),
+        chalk.green("Rating"),
+        chalk.green("Description"),
+      ],
+    });
+    for (let tuple of establishmentReviews) {
+      table.push([
+        tuple.review_id,
+        tuple.review_date,
+        tuple.rating,
+        tuple.description,
+      ]);
+    }
+    console.log(table.toString());
 
     // then select which review id to select
     const reviewIdPrompt = await inquirer.prompt([
@@ -69,31 +105,29 @@ export async function deleteEstabReview() {
       },
     ]);
 
+    // fetch that review
     spinner = ora("Fetching review...").start();
-
     const review = await conn.query(
       "SELECT * FROM review WHERE review_id=? AND user_id=? AND establishment_id=?",
       [reviewIdPrompt.id, loginResponse.user.user_id, establishmentIdPrompt.id]
     );
-
     spinner.stop();
 
+    // end if there isn't that review
     if (review.length === 0) {
       console.log(chalk.blueBright("Review does not exist."));
       process.exit(0);
     }
 
-    // starting the spinner
+    // delete review
     spinner = ora("Deleting review...").start();
-    // updating the review in the database
     await conn.query("DELETE FROM review WHERE review_id = ?", [
       review[0].review_id,
     ]);
-    // stopping the spinner
     spinner.stop();
 
+    // operation confirm
     console.log(chalk.blueBright("Review deleted!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
