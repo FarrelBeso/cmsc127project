@@ -1,6 +1,8 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
+import { format } from "date-fns";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../../additional_features/auth_cmds.js";
 
@@ -46,7 +48,7 @@ export async function deleteEstabReview() {
     for (let tuple of userReviews) {
       table.push([
         tuple.review_id,
-        tuple.review_date,
+        format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
         tuple.rating,
         tuple.description,
         tuple.establishment_id,
@@ -89,7 +91,7 @@ export async function deleteEstabReview() {
     for (let tuple of establishmentReviews) {
       table.push([
         tuple.review_id,
-        tuple.review_date,
+        format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
         tuple.rating,
         tuple.description,
       ]);
