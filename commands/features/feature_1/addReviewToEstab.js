@@ -20,7 +20,9 @@ export async function addReviewToEstab() {
 
     // first get all establishments available to review
     spinner = ora("Fetching establishments...").start();
-    const establishments = await conn.query("SELECT * FROM food_establishment");
+    const establishments = await conn.query(
+      "SELECT * FROM food_establishment ORDER BY name"
+    );
     spinner.stop();
 
     // end if there are no estabs to show
@@ -58,7 +60,7 @@ export async function addReviewToEstab() {
       },
     ]);
 
-    // get estabs
+    // get establishment
     spinner = ora("Fetching establishment...").start();
     const establishment = await conn.query(
       "SELECT * FROM food_establishment where establishment_id=?",
@@ -66,7 +68,7 @@ export async function addReviewToEstab() {
     );
     spinner.stop();
 
-    // end program if there are no estabs
+    // end program if that establishment doesn't exist
     if (establishment.length === 0) {
       console.log(chalk.blueBright("Establishment does not exist."));
       process.exit(0);

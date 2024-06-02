@@ -22,7 +22,10 @@ export async function updateItemReview() {
     // get reviews
     spinner = ora("Fetching your reviews...").start();
     const userReviews = await conn.query(
-      "SELECT * FROM review r JOIN food_item f ON r.food_id=f.food_id WHERE r.user_id=? AND f.food_id IS NOT NULL",
+      "SELECT r.review_id, r.review_date, r.rating, r.description, r.establishment_id, f.name FROM review r \
+      JOIN food_item f ON r.food_id=f.food_id \
+      WHERE r.user_id=? AND f.food_id IS NOT NULL \
+      ORDER BY f.name",
       [loginResponse.user.user_id]
     );
     spinner.stop();
@@ -38,22 +41,22 @@ export async function updateItemReview() {
     // show table of user's reviews on items
     table = new CliTable3({
       head: [
+        chalk.green("Food ID"),
+        chalk.green("Food Name"),
         chalk.green("Review ID"),
         chalk.green("Review Date"),
         chalk.green("Rating"),
         chalk.green("Description"),
-        chalk.green("Food ID"),
-        chalk.green("Food Name"),
       ],
     });
     for (let tuple of userReviews) {
       table.push([
+        tuple.food_id,
+        tuple.name,
         tuple.review_id,
         format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
         tuple.rating,
         tuple.description,
-        tuple.food_id,
-        tuple.name,
       ]);
     }
     console.log(table.toString());
@@ -70,7 +73,7 @@ export async function updateItemReview() {
     // get the reviews
     spinner = ora("Fetching your reviews...").start();
     const foodReviews = await conn.query(
-      "SELECT * FROM review WHERE user_id=? AND food_id=?",
+      "SELECT * FROM review WHERE user_id=? AND food_id=? ORDER BY review_date DESC",
       [loginResponse.user.user_id, foodIdPrompt.id]
     );
     spinner.stop();

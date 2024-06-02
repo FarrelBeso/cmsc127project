@@ -20,7 +20,7 @@ export async function addReviewToItem() {
 
     // fetch food items
     spinner = ora("Fetching food items...").start();
-    const items = await conn.query("SELECT * FROM food_item");
+    const items = await conn.query("SELECT * FROM food_item ORDER BY name");
     spinner.stop();
 
     // end if there are none to be rated
