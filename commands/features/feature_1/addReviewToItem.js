@@ -32,7 +32,13 @@ export async function addReviewToItem() {
     }
 
     table = new CliTable3({
-      head: ["Food ID", "Name", "Price", "Availability", "Establishment ID"],
+      head: [
+        chalk.green("Food ID"),
+        chalk.green("Name"),
+        chalk.green("Price"),
+        chalk.green("Availability"),
+        chalk.green("Establishment ID"),
+      ],
     });
 
     // loop for all items

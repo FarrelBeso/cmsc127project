@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../../additional_features/auth_cmds.js";
 
@@ -8,7 +9,7 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Leave a review to an establishment.
  */
 export async function addReviewToEstab() {
-  let conn, spinner;
+  let conn, spinner, table;
   try {
     // connect to db
     conn = await connectDB();
@@ -30,7 +31,26 @@ export async function addReviewToEstab() {
       process.exit(0);
     }
 
-    console.log(establishments);
+    table = new CliTable3({
+      head: [
+        chalk.green("Establishment ID"),
+        chalk.green("Name"),
+        chalk.green("Address"),
+        chalk.green("Email"),
+      ],
+    });
+
+    // loop for all items
+    for (let tuple of establishments) {
+      table.push([
+        tuple.establishment_id,
+        tuple.name,
+        tuple.address,
+        tuple.email,
+      ]);
+    }
+
+    console.log(table.toString());
 
     // first query the user if the establishment exists
     const establishmentIdPrompt = await inquirer.prompt([
