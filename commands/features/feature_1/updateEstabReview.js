@@ -60,6 +60,8 @@ export async function updateEstabReview() {
       process.exit(0);
     }
 
+    console.log(establishmentReviews);
+
     // then select which review id to select
     const reviewIdPrompt = await inquirer.prompt([
       {
@@ -98,14 +100,14 @@ export async function updateEstabReview() {
     ]);
 
     // starting the spinner
-    const spinner = ora("Updating review...").start();
+    spinner = ora("Updating review...").start();
     // updating the review in the database
     await conn.query(
       "UPDATE review SET rating=?, description=? WHERE establishment_id=? AND user_id=?",
       [
         answers.rating,
         answers.description,
-        checkPrompt.id,
+        establishmentIdPrompt.id,
         loginResponse.user.user_id,
       ]
     );
