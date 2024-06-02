@@ -26,10 +26,9 @@ export async function addReviewToItem() {
         type: "input",
       },
     ]);
-    const items = await conn.query(
-      "SELECT * FROM food_item WHERE item_id=?",
-      [checkPrompt.id]
-    );
+    const items = await conn.query("SELECT * FROM food_item WHERE food_id=?", [
+      checkPrompt.id,
+    ]);
 
     if (items.length === 0) {
       throw "Food item does not exist.";
@@ -55,12 +54,12 @@ export async function addReviewToItem() {
     // fetching all the food items from the database
     // only review the first food item
     await conn.query(
-      "INSERT INTO review (rating, user_id, description, item_id) VALUES (?, ?, ?, ?)",
+      "INSERT INTO review (rating, user_id, description, food_id) VALUES (?, ?, ?, ?)",
       [
         answers.rating,
         loginResponse.user.user_id,
         answers.description,
-        items[0].item_id,
+        items[0].food_id,
       ]
     );
     // stopping the spinner
