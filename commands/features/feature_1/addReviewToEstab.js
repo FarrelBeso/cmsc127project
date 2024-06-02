@@ -8,7 +8,7 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Leave a review to an establishment.
  */
 export async function addReviewToEstab() {
-  let conn;
+  let conn, spinner;
   try {
     // connect to db
     conn = await connectDB();
@@ -18,25 +18,43 @@ export async function addReviewToEstab() {
       throw loginResponse.msg;
     }
 
+    spinner = ora("Fetching establishments...").start();
+
+    // first get all establishments available to review
+    const establishments = await conn.query("SELECT * FROM food_establishment");
+
+    spinner.stop();
+
+    if (establishments.length === 0) {
+      console.log(chalk.blueBright("No establishments yet."));
+      process.exit(0);
+    }
+
+    console.log(establishments);
+
     // first query the user if the establishment exists
-    const checkPrompt = await inquirer.prompt([
+    const establishmentIdPrompt = await inquirer.prompt([
       {
         name: "id",
         message: "Enter the id of the establishment:",
         type: "input",
       },
     ]);
-    const establishments = await conn.query(
+
+    spinner = ora("Fetching establishment...").start();
+
+    const establishment = await conn.query(
       "SELECT * FROM food_establishment where establishment_id=?",
-      [checkPrompt.id]
+      [establishmentIdPrompt.id]
     );
 
-    if (establishments.length === 0) {
-      throw "Establishment does not exist.";
+    spinner.stop();
+
+    if (establishment.length === 0) {
+      console.log(chalk.blueBright("Establishment does not exist."));
+      process.exit(0);
     }
 
-    // then we can now query for the review info
-    // TODO: Review description should be optional
     const answers = await inquirer.prompt([
       {
         name: "rating",
@@ -51,7 +69,7 @@ export async function addReviewToEstab() {
     ]);
 
     // starting the spinner
-    const spinner = ora("Adding review...").start();
+    spinner = ora("Adding review...").start();
     // fetching all the establishments from the database
     // only review the first establishment
     await conn.query(
@@ -60,7 +78,7 @@ export async function addReviewToEstab() {
         answers.rating,
         loginResponse.user.user_id,
         answers.description,
-        establishments[0].establishment_id,
+        establishment[0].establishment_id,
       ]
     );
     // stopping the spinner
