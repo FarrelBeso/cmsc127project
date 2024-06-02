@@ -8,7 +8,7 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Leave a review for a food item.
  */
 export async function addReviewToItem() {
-  let conn;
+  let conn, spinner;
   try {
     // connect to db
     conn = await connectDB();
@@ -18,20 +18,40 @@ export async function addReviewToItem() {
       throw loginResponse.msg;
     }
 
+    spinner = ora("Fetching food items...").start();
+
+    // first get all establishments available to review
+    const items = await conn.query("SELECT * FROM food_item");
+
+    spinner.stop();
+
+    if (items.length === 0) {
+      console.log(chalk.blueBright("No food items yet."));
+      process.exit(0);
+    }
+
+    console.log(items);
+
     // first query the user if the food item exists
-    const checkPrompt = await inquirer.prompt([
+    const foodIdPrompt = await inquirer.prompt([
       {
         name: "id",
         message: "Enter the id of the food item:",
         type: "input",
       },
     ]);
-    const items = await conn.query("SELECT * FROM food_item WHERE food_id=?", [
-      checkPrompt.id,
+
+    spinner = ora("Fetching food item...").start();
+
+    const item = await conn.query("SELECT * FROM food_item WHERE food_id=?", [
+      foodIdPrompt.id,
     ]);
 
-    if (items.length === 0) {
-      throw "Food item does not exist.";
+    spinner.stop();
+
+    if (item.length === 0) {
+      console.log(chalk.blueBright("No food items yet."));
+      process.exit(0);
     }
 
     // then we can now query for the review info
@@ -50,7 +70,7 @@ export async function addReviewToItem() {
     ]);
 
     // starting the spinner
-    const spinner = ora("Adding review...").start();
+    spinner = ora("Adding review...").start();
     // fetching all the food items from the database
     // only review the first food item
     await conn.query(
@@ -59,7 +79,7 @@ export async function addReviewToItem() {
         answers.rating,
         loginResponse.user.user_id,
         answers.description,
-        items[0].food_id,
+        item[0].food_id,
       ]
     );
     // stopping the spinner
