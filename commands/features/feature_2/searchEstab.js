@@ -16,7 +16,7 @@ export async function searchEstab() {
     const answers = await inquirer.prompt([
       {
         name: "searchTerm",
-        message: "Enter the name or location of the establishment to search:",
+        message: "Enter the name of the establishment to search:",
         type: "input",
       },
     ]);
@@ -25,18 +25,21 @@ export async function searchEstab() {
     const spinner = ora("Searching establishment...").start();
     // searching in the database
     const results = await conn.query(
-      "SELECT * FROM food_establishment WHERE name LIKE ? OR location LIKE ?",
+      'SELECT * FROM food_establishment WHERE name LIKE "?"',
       [`%${answers.searchTerm}%`, `%${answers.searchTerm}%`]
     );
     // stopping the spinner
     spinner.stop();
 
     if (results.length === 0) {
-      console.log(chalk.redBright("No establishments found."));
+      console.log(chalk.blueBright("No establishments found."));
+      process.exit(0);
     } else {
       console.log(chalk.greenBright("Establishments found:"));
-      results.forEach(establishment => {
-        console.log(`- ${establishment.name}, ${establishment.location}, ${establishment.type}`);
+      results.forEach((establishment) => {
+        console.log(
+          `- ${establishment.name}, ${establishment.location}, ${establishment.type}`
+        );
       });
     }
 
