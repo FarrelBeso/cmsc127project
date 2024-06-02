@@ -10,7 +10,7 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Update a review for an establishment.
  */
 export async function updateEstabReview() {
-  let conn, spinner;
+  let conn, spinner, table;
   try {
     // login first
     conn = await connectDB();
