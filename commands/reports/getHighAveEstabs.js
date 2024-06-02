@@ -16,7 +16,7 @@ export async function getHighAveEstabs(){
       // fetching all establishments from the database
       const establishments = await conn.query("SELECT e.establishment_id, e.name, e.address, e.email, r.average FROM food_establishment e JOIN (SELECT establishment_id, AVG(rating) `average` FROM review GROUP BY establishment_id HAVING establishment_id IS NOT NULL AND `average` >= 4) r ON e.establishment_id=r.establishment_id",
                                               [answers.id]);
-      );
+                                              
       // stopping the spinner
       spinner.stop();
 

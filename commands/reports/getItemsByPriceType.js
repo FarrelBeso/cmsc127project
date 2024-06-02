@@ -4,9 +4,9 @@ import inquirer from "inquirer";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 
 /**
- * Search for a food item based on type.
+ * Search for a food item based on price and type.
  */
-export async function getItemByType() {
+export async function getItemsByPriceType() {
   let conn;
   try {
     // connect to db
@@ -14,6 +14,16 @@ export async function getItemByType() {
 
     // query the user for search term
     const answers = await inquirer.prompt([
+      {
+        name: "minPrice",
+        message: "Enter the type of the food item to search:",
+        type: "input",
+      },
+      {
+        name: "maxPrice",
+        message: "Enter the type of the food item to search:",
+        type: "input",
+      },
       {
         name: "itemType",
         message: "Enter the type of the food item to search:",
@@ -25,7 +35,8 @@ export async function getItemByType() {
     const spinner = ora("Searching food item...").start();
     // searching in the database
     const results = await conn.query(
-      "SELECT * FROM food_item WHERE type LIKE ?", [`%${answers.itemType}%`]
+      "SELECT * FROM food_item WHERE price >= ? AND price <= ? AND food_id IN (SELECT food_id FROM food_item_type WHERE type IN ?", 
+      [answers.minPrice,answers.maxPrice,addItems.type]
     );
     // stopping the spinner
     spinner.stop();
