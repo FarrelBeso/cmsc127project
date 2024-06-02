@@ -116,6 +116,33 @@ program
   .description("Get all reviews from food items.")
   .action(reports.getReviewsFromItems);
 
+program
+  .command("get-month-review-from-estabs")
+  .description("Get all reviews made within the month for an establishment.")
+  .action(reports.getMonthReviewFromEstabs);
+
+program
+  .command("get-month-review-from-items")
+  .description("Get all reviews made within the month for a food item.")
+  .action(reports.getMonthReviewFromItems);
+
+program
+  .command("get-high-ave-estabs")
+  .description(
+    "Get all food items from an establishment with a high average rating."
+  )
+  .action(reports.getHighAveEstabs);
+
+program
+  .command("get-items-price-order")
+  .description("Get all food items from an establishment arranged by price.")
+  .action(reports.getItemsPriceOrder);
+
+program
+  .command("get-items-by-type")
+  .description("Get all food items based on price range and/or food type.")
+  .action(reports.getItemsByType);
+
 // ADDITIONAL FEATURES
 // USERS
 program
