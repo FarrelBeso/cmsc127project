@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../../additional_features/auth_cmds.js";
 
@@ -8,35 +9,72 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Leave a review to an establishment.
  */
 export async function addReviewToEstab() {
-  let conn;
+  let conn, spinner, table;
   try {
-    // connect to db
+    // login first
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success) {
       throw loginResponse.msg;
     }
 
+    // first get all establishments available to review
+    spinner = ora("Fetching establishments...").start();
+    const establishments = await conn.query(
+      "SELECT * FROM food_establishment ORDER BY name"
+    );
+    spinner.stop();
+
+    // end if there are no estabs to show
+    if (establishments.length === 0) {
+      console.log(chalk.blueBright("No establishments yet."));
+      process.exit(0);
+    }
+
+    // show the tables here
+    table = new CliTable3({
+      head: [
+        chalk.green("Establishment ID"),
+        chalk.green("Name"),
+        chalk.green("Address"),
+        chalk.green("Email"),
+      ],
+    });
+    // loop for all items
+    for (let tuple of establishments) {
+      table.push([
+        tuple.establishment_id,
+        tuple.name,
+        tuple.address,
+        tuple.email,
+      ]);
+    }
+    console.log(table.toString());
+
     // first query the user if the establishment exists
-    const checkPrompt = await inquirer.prompt([
+    const establishmentIdPrompt = await inquirer.prompt([
       {
         name: "id",
         message: "Enter the id of the establishment:",
         type: "input",
       },
     ]);
-    const establishments = await conn.query(
-      "SELECT * FROM food_establishment where establishment_id=?",
-      [checkPrompt.id]
-    );
 
-    if (establishments.length === 0) {
-      throw "Establishment does not exist.";
+    // get establishment
+    spinner = ora("Fetching establishment...").start();
+    const establishment = await conn.query(
+      "SELECT * FROM food_establishment where establishment_id=?",
+      [establishmentIdPrompt.id]
+    );
+    spinner.stop();
+
+    // end program if that establishment doesn't exist
+    if (establishment.length === 0) {
+      console.log(chalk.blueBright("Establishment does not exist."));
+      process.exit(0);
     }
 
-    // then we can now query for the review info
-    // TODO: Review description should be optional
+    // query user abt the info of the rating
     const answers = await inquirer.prompt([
       {
         name: "rating",
@@ -50,24 +88,21 @@ export async function addReviewToEstab() {
       },
     ]);
 
-    // starting the spinner
-    const spinner = ora("Adding review...").start();
-    // fetching all the establishments from the database
-    // only review the first establishment
+    // insert the review
+    spinner = ora("Adding review...").start();
     await conn.query(
       "INSERT INTO review (rating, user_id, description, establishment_id) VALUES (?, ?, ?, ?)",
       [
         answers.rating,
         loginResponse.user.user_id,
         answers.description,
-        establishments[0].establishment_id,
+        establishment[0].establishment_id,
       ]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // inform that review is added and we're done
     console.log(chalk.blueBright("Review added!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

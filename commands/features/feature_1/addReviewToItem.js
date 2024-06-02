@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../../additional_features/auth_cmds.js";
 
@@ -8,35 +9,70 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Leave a review for a food item.
  */
 export async function addReviewToItem() {
-  let conn;
+  let conn, spinner, table;
   try {
-    // connect to db
+    // login
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success) {
       throw loginResponse.msg;
     }
 
+    // fetch food items
+    spinner = ora("Fetching food items...").start();
+    const items = await conn.query("SELECT * FROM food_item ORDER BY name");
+    spinner.stop();
+
+    // end if there are none to be rated
+    if (items.length === 0) {
+      console.log(chalk.blueBright("No food items yet."));
+      process.exit(0);
+    }
+
+    // show table of items to be shown
+    table = new CliTable3({
+      head: [
+        chalk.green("Food ID"),
+        chalk.green("Name"),
+        chalk.green("Price"),
+        chalk.green("Availability"),
+        chalk.green("Establishment ID"),
+      ],
+    });
+    for (let tuple of items) {
+      table.push([
+        tuple.food_id,
+        tuple.name,
+        tuple.price,
+        tuple.availability === 1 ? "Available" : "Not Available",
+        tuple.establishment_id,
+      ]);
+    }
+    console.log(table.toString());
+
     // first query the user if the food item exists
-    const checkPrompt = await inquirer.prompt([
+    const foodIdPrompt = await inquirer.prompt([
       {
         name: "id",
         message: "Enter the id of the food item:",
         type: "input",
       },
     ]);
-    const items = await conn.query(
-      "SELECT * FROM food_item WHERE item_id=?",
-      [checkPrompt.id]
-    );
 
-    if (items.length === 0) {
-      throw "Food item does not exist.";
+    // fetch the food item
+    spinner = ora("Fetching food item...").start();
+    const item = await conn.query("SELECT * FROM food_item WHERE food_id=?", [
+      foodIdPrompt.id,
+    ]);
+    spinner.stop();
+
+    // end if there isnt a food item with that id
+    if (item.length === 0) {
+      console.log(chalk.blueBright("No food items yet."));
+      process.exit(0);
     }
 
-    // then we can now query for the review info
-    // TODO: Review description should be optional
+    // review info
     const answers = await inquirer.prompt([
       {
         name: "rating",
@@ -50,24 +86,21 @@ export async function addReviewToItem() {
       },
     ]);
 
-    // starting the spinner
-    const spinner = ora("Adding review...").start();
-    // fetching all the food items from the database
-    // only review the first food item
+    // add the review to db
+    spinner = ora("Adding review...").start();
     await conn.query(
-      "INSERT INTO review (rating, user_id, description, item_id) VALUES (?, ?, ?, ?)",
+      "INSERT INTO review (rating, user_id, description, food_id) VALUES (?, ?, ?, ?)",
       [
         answers.rating,
         loginResponse.user.user_id,
         answers.description,
-        items[0].item_id,
+        item[0].food_id,
       ]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // confirm that operation is done
     console.log(chalk.blueBright("Review added!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
