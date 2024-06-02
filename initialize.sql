@@ -27,7 +27,7 @@ CREATE TABLE food_item (
     price DECIMAL(10, 2) NOT NULL,
     availability BOOLEAN NOT NULL,
     establishment_id INT NOT NULL,
-    CONSTRAINT food_item_establishment_id_fk FOREIGN KEY(establishment_id) REFERENCES food_establishment(establishment_id)
+    CONSTRAINT food_item_establishment_id_fk FOREIGN KEY(establishment_id) REFERENCES food_establishment(establishment_id) ON DELETE CASCADE
 );
 
 
@@ -39,9 +39,9 @@ CREATE TABLE review (
 	establishment_id INT,
 	food_id INT,
 	user_id INT NOT NULL,
-	CONSTRAINT review_establishment_id_fk FOREIGN KEY(establishment_id) REFERENCES food_establishment(establishment_id),
-	CONSTRAINT review_food_id_fk FOREIGN KEY(food_id) REFERENCES food_item(food_id),
-	CONSTRAINT review_user_id_fk FOREIGN KEY(user_id) REFERENCES user(user_id)
+	CONSTRAINT review_establishment_id_fk FOREIGN KEY(establishment_id) REFERENCES food_establishment(establishment_id) ON DELETE CASCADE,
+	CONSTRAINT review_food_id_fk FOREIGN KEY(food_id) REFERENCES food_item(food_id) ON DELETE CASCADE,
+	CONSTRAINT review_user_id_fk FOREIGN KEY(user_id) REFERENCES user(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE food_item_type (
