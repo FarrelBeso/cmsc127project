@@ -48,7 +48,7 @@ export async function updateItemReview() {
     ]);
 
     const foodReviews = await conn.query(
-      "SELECT * FROM food_item WHERE user_id=? AND food_id=?",
+      "SELECT * FROM review WHERE user_id=? AND food_id=?",
       [loginResponse.user.user_id, foodIdPrompt.id]
     );
 
@@ -56,6 +56,8 @@ export async function updateItemReview() {
       console.log(chalk.blueBright("Food item does not exist."));
       return;
     }
+
+    console.log(foodReviews);
 
     // then select which review id to select
     const reviewIdPrompt = await inquirer.prompt([
@@ -66,10 +68,9 @@ export async function updateItemReview() {
       },
     ]);
 
-    const review = await conn.query(
-      "SELECT * FROM food_item WHERE review_id=?",
-      [reviewIdPrompt.id]
-    );
+    const review = await conn.query("SELECT * FROM review WHERE review_id=?", [
+      reviewIdPrompt.id,
+    ]);
 
     if (review.length === 0) {
       console.log(chalk.blueBright("Review does not exist."));
@@ -98,7 +99,7 @@ export async function updateItemReview() {
       [
         answers.rating,
         answers.description,
-        checkPrompt.id,
+        foodIdPrompt.id,
         loginResponse.user.user_id,
       ]
     );
