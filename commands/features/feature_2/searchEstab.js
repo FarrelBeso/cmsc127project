@@ -1,13 +1,14 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 
 /**
  * Search for a food establishment.
  */
 export async function searchEstab() {
-  let conn;
+  let conn, table;
   try {
     // connect to db
     conn = await connectDB();
@@ -25,8 +26,8 @@ export async function searchEstab() {
     const spinner = ora("Searching establishment...").start();
     // searching in the database
     const results = await conn.query(
-      'SELECT * FROM food_establishment WHERE name LIKE "?"',
-      [`%${answers.searchTerm}%`, `%${answers.searchTerm}%`]
+      "SELECT * FROM food_establishment WHERE name LIKE ?",
+      [`%${answers.searchTerm.toLowerCase()}%`]
     );
     // stopping the spinner
     spinner.stop();
@@ -34,14 +35,27 @@ export async function searchEstab() {
     if (results.length === 0) {
       console.log(chalk.blueBright("No establishments found."));
       process.exit(0);
-    } else {
-      console.log(chalk.greenBright("Establishments found:"));
-      results.forEach((establishment) => {
-        console.log(
-          `- ${establishment.name}, ${establishment.location}, ${establishment.type}`
-        );
-      });
     }
+
+    // show table here
+    table = new CliTable3({
+      head: [
+        chalk.green("Establishment ID"),
+        chalk.green("Name"),
+        chalk.green("Address"),
+        chalk.green("Email"),
+      ],
+    });
+    // loop for all items
+    for (let tuple of results) {
+      table.push([
+        tuple.establishment_id,
+        tuple.name,
+        tuple.address,
+        tuple.email,
+      ]);
+    }
+    console.log(table.toString());
 
     await disconnectDB(conn);
   } catch (error) {
