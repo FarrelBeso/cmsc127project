@@ -140,6 +140,90 @@ program
 
 // FOOD TYPE
 
+// ALLERGENS
+program
+  .command("add-allergen")
+  .description("Add an allergen to food item.")
+  .action(additional_features.allergens.addAllergen);
+
+program
+  .command("delete-allergen")
+  .description("Delete an allergen from food item.")
+  .action(additional_features.allergens.deleteAllergen);
+
+program
+  .command("search-allergen")
+  .description("Search allergens from food item.")
+  .action(additional_features.allergens.searchAllergen);
+
+program
+  .command("update-allergen")
+  .description("Update an allergen in a food item.")
+  .action(additional_features.allergens.updateAllergen);
+
+// CONTACT NUMBERS
+program
+  .command("add-contact-num")
+  .description("Add a contact number to food establishment.")
+  .action(additional_features.contact_numbers.addContactNum);
+
+program
+  .command("delete-contact-num")
+  .description("Delete a contact number from food establishment.")
+  .action(additional_features.contact_numbers.deleteContactNum);
+
+program
+  .command("search-contact-num")
+  .description("Search a contact number in a food establishment.")
+  .action(additional_features.contact_numbers.searchContactNum);
+
+program
+  .command("update-contact-num")
+  .description("Update a contact number to food establishment.")
+  .action(additional_features.contact_numbers.updateContactNum);
+
+// CONTACT PERSONS
+program
+  .command("add-contact-person")
+  .description("Add a contact person to food establishment.")
+  .action(additional_features.contact_persons.addContactPerson);
+
+program
+  .command("delete-contact-person")
+  .description("Delete a contact person from food establishment.")
+  .action(additional_features.contact_persons.deleteContactPerson);
+
+program
+  .command("search-contact-person")
+  .description("Search a contact person in a food establishment.")
+  .action(additional_features.contact_persons.searchContactPerson);
+
+program
+  .command("update-contact-person")
+  .description("Update a contact person to food establishment.")
+  .action(additional_features.contact_persons.updateContactPerson);
+
+// OWNER NAMES
+program
+  .command("add-owner")
+  .description("Add an owner to food establishment.")
+  .action(additional_features.owner_names.addOwner);
+
+program
+  .command("delete-owner")
+  .description("Delete an owner from a food establishment.")
+  .action(additional_features.owner_names.deleteOwner);
+
+program
+  .command("search-owner")
+  .description("Search an owner from a food establishment.")
+  .action(additional_features.owner_names.searchOwner);
+
+program
+  .command("update-owner")
+  .description("Update the owner in a food establishment.")
+  .action(additional_features.owner_names.updateOwner);
+
 // MISCELLANEOUS
 program
   .command("get-all-items")
