@@ -161,6 +161,27 @@ program
   .description("Update an allergen in a food item.")
   .action(additional_features.allergens.updateAllergen);
 
+// CONTACT NUMBERS
+program
+  .command("add-contact-num")
+  .description("Add a contact number to food establishment.")
+  .action(additional_features.contact_numbers.addContactNum);
+
+program
+  .command("delete-contact-num")
+  .description("Delete a contact number from food establishment.")
+  .action(additional_features.contact_numbers.deleteContactNum);
+
+program
+  .command("search-contact-num")
+  .description("Search a contact number in a food establishment.")
+  .action(additional_features.contact_numbers.searchContactNum);
+
+program
+  .command("update-contact-num")
+  .description("Update a contact number to food establishment.")
+  .action(additional_features.contact_numbers.updateContactNum);
+
 // MISCELLANEOUS
 program
   .command("get-all-items")
