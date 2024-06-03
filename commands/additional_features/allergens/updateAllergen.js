@@ -91,24 +91,39 @@ export async function updateAllergen() {
       },
     ]);
 
-    // double check if allergen already exists
+    // double check if allergen doesn't exist
     if (
-      allergens.find((allergen) => allergen.allergen == allergenPrompt.allergen)
+      !allergens.find(
+        (allergen) => allergen.allergen == allergenPrompt.allergen
+      )
     ) {
-      console.log(chalk.magentaBright("Allergen already exists."));
+      console.log(chalk.magentaBright("Allergen does not exist."));
       process.exit(0);
     }
 
+    // prompt change
+    const allergenChangePrompt = await inquirer.prompt([
+      {
+        name: "newAllergen",
+        message: "Enter updated allergen value:",
+        type: "input",
+      },
+    ]);
+
     // insert to db
-    spinner = ora("Adding allergen...").start();
+    spinner = ora("Updating allergen...").start();
     await conn.query(
-      "INSERT INTO food_item_allergen (food_id, allergen) VALUES (?, ?)",
-      [foodIdPrompt.id, allergenPrompt.allergen]
+      "UPDATE food_item_allergen SET allergen=? WHERE food_id=? AND allergen=?",
+      [
+        allergenChangePrompt.newAllergen,
+        foodIdPrompt.id,
+        allergenPrompt.allergen,
+      ]
     );
     spinner.stop();
 
     // confirm operation
-    console.log(chalk.greenBright("Allergen added successfully!"));
+    console.log(chalk.greenBright("Allergen edited successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
