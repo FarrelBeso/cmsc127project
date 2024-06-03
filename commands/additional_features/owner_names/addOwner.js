@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../auth_cmds.js";
 
 /**
- * Add contact person.
+ * Add owner.
  */
 export async function addOwner() {
   let conn, spinner, table;
@@ -69,50 +69,45 @@ export async function addOwner() {
     }
 
     // show the contacts
-    spinner = ora("Fetching contact persons...").start();
-    const contactPersons = await conn.query(
-      "SELECT contact_person FROM food_establishment_contact_person WHERE establishment_id=?",
+    spinner = ora("Fetching owners...").start();
+    const owners = await conn.query(
+      "SELECT owner_name FROM food_establishment_owner_name WHERE establishment_id=?",
       [establishmentIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Contact Person")],
+      head: [chalk.green("Owner")],
     });
-    for (let tuple of contactPersons) {
-      table.push([tuple.contact_person]);
+    for (let tuple of owners) {
+      table.push([tuple.owner_name]);
     }
     console.log(table.toString());
 
-    if (contactPersons.length === 0) {
-      console.log(chalk.blueBright("No contact persons yet."));
+    if (owners.length === 0) {
+      console.log(chalk.blueBright("No owners yet."));
     }
 
-    const contactPersonPrompt = await inquirer.prompt([
+    const ownerPrompt = await inquirer.prompt([
       {
-        name: "contactPerson",
-        message: "Enter the contact person:",
+        name: "owner",
+        message: "Enter the owner:",
         type: "input",
       },
     ]);
 
-    // double check if contact person already exists
-    if (
-      contactPersons.find(
-        (contactPerson) =>
-          contactPerson.contact_person === contactPersonPrompt.contactPerson
-      )
-    ) {
-      console.log(chalk.magentaBright("Contact person already exists."));
+    // double check if owner already exists
+    if (owners.find((owner) => owner.owner_name === ownerPrompt.owner)) {
+      console.log(chalk.magentaBright("Owner already exists."));
       process.exit(0);
     }
 
     // insert to db
-    spinner = ora("Adding contact person...").start();
+    spinner = ora("Adding owner...").start();
     await conn.query(
-      "INSERT INTO food_establishment_contact_person (establishment_id, contact_person) VALUES (?, ?)",
-      [establishmentIdPrompt.id, contactPersonPrompt.contactPerson]
+      "INSERT INTO food_establishment_owner_name (establishment_id, owner_name) VALUES (?, ?)",
+      [establishmentIdPrompt.id, ownerPrompt.owner]
     );
     spinner.stop();
 
