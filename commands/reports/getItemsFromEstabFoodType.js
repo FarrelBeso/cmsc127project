@@ -82,21 +82,13 @@ export async function getItemsFromEstabFoodType() {
       }
     }
 
-    // then merge the types into one
-    let typeString = types.reduce(
-      (total, currVal) => total + `"${currVal},`,
-      ""
-    );
-    // snip the last comma
-    typeString = typeString.substring(0, typeString.length - 1);
-
     // starting the spinner
-    spinner = ora("Fetching reviews from the food item...").start();
+    spinner = ora("Fetching food items...").start();
     const items = await conn.query(
-      "SELECT f.food_id, f.name, f.price, f.availability, e.name establishment_name FROM food_item \
+      "SELECT f.food_id, f.name, f.price, f.availability, e.name establishment_name FROM food_item f \
       JOIN food_establishment e ON f.establishment_id=e.establishment_id \
-      WHERE (f.food_id IN (SELECT food_id FROM food_item_type WHERE type IN (?)) AND establishment_id=?)",
-      [typeString, establishmentIdPrompt.id]
+      WHERE (f.food_id IN (SELECT food_id FROM food_item_type WHERE type IN (?)) AND e.establishment_id=?)",
+      [types, establishmentIdPrompt.id]
     );
     // stopping the spinner
     spinner.stop();
