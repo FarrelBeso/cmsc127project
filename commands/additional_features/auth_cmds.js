@@ -8,11 +8,33 @@ import { connectDB, disconnectDB } from "../../db/connectDB.js";
  * Register a user.
  */
 export async function register() {
-  let conn;
+  let conn, spinner;
   try {
     // connect to db
     conn = await connectDB();
-    // first query the user on basic info
+    // first check if email already exists due to uniqueness constraint
+    const emailPrompt = await inquirer.prompt([
+      {
+        name: "email",
+        message: "Enter your email:",
+        type: "input",
+      },
+    ]);
+
+    // then fetch to check if there already is an email for that
+    spinner = ora("Creating account...").start();
+    const emailCheck = await conn.query("SELECT FROM user WHERE email=?", [
+      emailPrompt.email,
+    ]);
+    spinner.stop();
+
+    // exit if there is duplicate
+    if (emailCheck.length > 0) {
+      console.log(chalk.magentaBright("Email already exists."));
+      process.exit(0);
+    }
+
+    // then proceed with asking more info
     const answers = await inquirer.prompt([
       {
         name: "firstName",
@@ -25,11 +47,6 @@ export async function register() {
         type: "input",
       },
       {
-        name: "email",
-        message: "Enter your email:",
-        type: "input",
-      },
-      {
         name: "password",
         message: "Enter your password:",
         type: "password", // This will hide the password input
@@ -39,11 +56,6 @@ export async function register() {
         message: "Confirm your password:",
         type: "password",
       },
-      // {
-      //   name: "usertype",
-      //   message: "Enter user type (user/admin):",
-      //   type: "input",
-      // },
     ]);
 
     // Check if passwords match
@@ -51,13 +63,8 @@ export async function register() {
       throw "Passwords do not match.";
     }
 
-    // // Check if usertype is valid
-    // if (!['user', 'admin'].includes(answers.usertype)) {
-    //   throw "Invalid user type. Please enter 'user' or 'admin'.";
-    // }
-
     // starting the spinner
-    const spinner = ora("Creating account...").start();
+    spinner = ora("Creating account...").start();
     // creating account
     // hash the password first
     const hashedPassword = await bcrypt.hash(answers.password, 10);
@@ -66,9 +73,8 @@ export async function register() {
       [
         answers.firstName,
         answers.lastName,
-        // answers.usertype, // Save the user type from input
         "user",
-        answers.email,
+        emailPrompt.email,
         hashedPassword,
       ]
     );
