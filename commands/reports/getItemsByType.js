@@ -13,63 +13,12 @@ export async function getItemsByType() {
     // connect to db
     conn = await connectDB();
 
-    // show all food establishments first
-    spinner = ora("Fetching food establishments...").start();
-    const establishments = await conn.query(
-      "SELECT * from food_establishment ORDER BY name"
-    );
-    spinner.stop();
-
-    if (establishments.length === 0) {
-      console.log(chalk.blueBright("No establishments yet."));
-      process.exit(0);
-    }
-
-    // show the tables otherwise
-    table = new CliTable3({
-      head: [
-        chalk.green("Establishment ID"),
-        chalk.green("Name"),
-        chalk.green("Address"),
-        chalk.green("Email"),
-      ],
-    });
-    for (let tuple of establishments) {
-      table.push([
-        tuple.establishment_id,
-        tuple.name,
-        tuple.address,
-        tuple.email,
-      ]);
-    }
-    console.log(table.toString());
-
-    const establishmentIdPrompt = await inquirer.prompt([
-      {
-        name: "id",
-        message: "Enter establishment id:",
-        type: "input",
-      },
-    ]);
-
-    // check if there is establishment id
-    if (
-      !establishments.find(
-        (establishment) =>
-          establishment.establishment_id == establishmentIdPrompt.id
-      )
-    ) {
-      console.log(chalk.magentaBright("Establishment id not found."));
-      process.exit(0);
-    }
-
     // query the user for search term
     let types = [];
     let answers = await inquirer.prompt([
       {
         name: "itemType",
-        message:
-          "Enter the type of the food item to search (leave blank if you're done):",
+        message: "Enter the type of the food item to search:",
         type: "input",
       },
     ]);
@@ -94,8 +43,8 @@ export async function getItemsByType() {
     spinner = ora("Searching food items...").start();
     // searching in the database
     const results = await conn.query(
-      "SELECT * FROM food_item WHERE (food_id IN (SELECT food_id FROM food_item_type WHERE type IN (?)) AND establishment_id=?)",
-      [types, establishmentIdPrompt.id]
+      "SELECT * FROM food_item WHERE food_id IN (SELECT food_id FROM food_item_type WHERE type IN (?));",
+      [types]
     );
     // stopping the spinner
     spinner.stop();
