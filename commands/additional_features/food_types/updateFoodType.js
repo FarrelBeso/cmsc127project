@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../auth_cmds.js";
 
 /**
- * Update allergen to food.
+ * Update type to food.
  */
 export async function updateFoodType() {
   let conn, spinner, table;
@@ -18,7 +18,7 @@ export async function updateFoodType() {
       throw "Only admin users can use this functionality.";
     }
 
-    // show all food items first with the allergen
+    // show all food items first with the type
     spinner = ora("Fetching food items...").start();
     const items = await conn.query(
       "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
@@ -59,68 +59,60 @@ export async function updateFoodType() {
       process.exit(0);
     }
 
-    // show the allergens of the id
-    spinner = ora("Fetching allergens...").start();
-    const allergens = await conn.query(
-      "SELECT allergen FROM food_item_allergen WHERE food_id=?",
+    // show the types of the id
+    spinner = ora("Fetching types...").start();
+    const types = await conn.query(
+      "SELECT type FROM food_item_type WHERE food_id=?",
       [foodIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Allergen")],
+      head: [chalk.green("Type")],
     });
-    for (let tuple of allergens) {
-      table.push([tuple.allergen]);
+    for (let tuple of types) {
+      table.push([tuple.type]);
     }
     console.log(table.toString());
 
-    if (allergens.length === 0) {
-      console.log(chalk.blueBright("No allergens yet."));
+    if (types.length === 0) {
+      console.log(chalk.blueBright("No types yet."));
     }
 
-    const allergenPrompt = await inquirer.prompt([
+    const typePrompt = await inquirer.prompt([
       {
-        name: "allergen",
-        message: "Enter the allergen:",
+        name: "type",
+        message: "Enter the type:",
         type: "input",
       },
     ]);
 
-    // double check if allergen doesn't exist
-    if (
-      !allergens.find(
-        (allergen) => allergen.allergen == allergenPrompt.allergen
-      )
-    ) {
-      console.log(chalk.magentaBright("Allergen does not exist."));
+    // double check if type doesn't exist
+    if (!types.find((type) => type.type == typePrompt.type)) {
+      console.log(chalk.magentaBright("Type does not exist."));
       process.exit(0);
     }
 
     // prompt change
-    const allergenChangePrompt = await inquirer.prompt([
+    const typeChangePrompt = await inquirer.prompt([
       {
-        name: "newAllergen",
-        message: "Enter updated allergen value:",
+        name: "newType",
+        message: "Enter updated type value:",
         type: "input",
       },
     ]);
 
     // insert to db
-    spinner = ora("Updating allergen...").start();
+    spinner = ora("Updating type...").start();
     await conn.query(
-      "UPDATE food_item_allergen SET allergen=? WHERE food_id=? AND allergen=?",
-      [
-        allergenChangePrompt.newAllergen,
-        foodIdPrompt.id,
-        allergenPrompt.allergen,
-      ]
+      "UPDATE food_item_type SET type=? WHERE food_id=? AND type=?",
+      [typeChangePrompt.newType, foodIdPrompt.id, typePrompt.type]
     );
     spinner.stop();
 
     // confirm operation
-    console.log(chalk.greenBright("Allergen edited successfully!"));
+    console.log(chalk.greenBright("Type edited successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

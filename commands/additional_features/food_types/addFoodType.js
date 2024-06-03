@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../auth_cmds.js";
 
 /**
- * Add allergen to food.
+ * Add type to food.
  */
 export async function addFoodType() {
   let conn, spinner, table;
@@ -18,7 +18,7 @@ export async function addFoodType() {
       throw "Only admin users can use this functionality.";
     }
 
-    // show all food items first with the allergen
+    // show all food items first with the type
     spinner = ora("Fetching food items...").start();
     const items = await conn.query(
       "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
@@ -59,55 +59,51 @@ export async function addFoodType() {
       process.exit(0);
     }
 
-    // show the allergens of the id
-    spinner = ora("Fetching allergens...").start();
-    const allergens = await conn.query(
-      "SELECT allergen FROM food_item_allergen WHERE food_id=?",
+    // show the types of the id
+    spinner = ora("Fetching types...").start();
+    const types = await conn.query(
+      "SELECT type FROM food_item_type WHERE food_id=?",
       [foodIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Allergen")],
+      head: [chalk.green("Type")],
     });
-    for (let tuple of allergens) {
-      table.push([tuple.allergen]);
+    for (let tuple of types) {
+      table.push([tuple.type]);
     }
     console.log(table.toString());
 
-    if (allergens.length === 0) {
-      console.log(chalk.blueBright("No allergens yet."));
+    if (types.length === 0) {
+      console.log(chalk.blueBright("No types yet."));
     }
 
-    const allergenPrompt = await inquirer.prompt([
+    const typePrompt = await inquirer.prompt([
       {
-        name: "allergen",
-        message: "Enter the allergen:",
+        name: "type",
+        message: "Enter the type:",
         type: "input",
       },
     ]);
 
-    // double check if allergen already exists
-    if (
-      allergens.find(
-        (allergen) => allergen.allergen === allergenPrompt.allergen
-      )
-    ) {
-      console.log(chalk.magentaBright("Allergen already exists."));
+    // double check if type already exists
+    if (types.find((type) => type.type === typePrompt.type)) {
+      console.log(chalk.magentaBright("Type already exists."));
       process.exit(0);
     }
 
     // insert to db
-    spinner = ora("Adding allergen...").start();
+    spinner = ora("Adding type...").start();
     await conn.query(
-      "INSERT INTO food_item_allergen (food_id, allergen) VALUES (?, ?)",
-      [foodIdPrompt.id, allergenPrompt.allergen]
+      "INSERT INTO food_item_type (food_id, type) VALUES (?, ?)",
+      [foodIdPrompt.id, typePrompt.type]
     );
     spinner.stop();
 
     // confirm operation
-    console.log(chalk.greenBright("Allergen added successfully!"));
+    console.log(chalk.greenBright("Type added successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
