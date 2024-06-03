@@ -10,11 +10,11 @@ export async function getItemsPriceOrder() {
   let conn;
   try {
     // connect to db
-    conn = await connectDB() {
+    conn = await connectDB()
       // Ask user whether to arrange price list in increasing or decreasing order
       const validSortOrder = sort === "DESC" ? "DESC" : "ASC";
       // check
-      const foodItem = await inquirer.prompt([
+      const item = await inquirer.prompt([
         {
           name: "id",
           message: "Enter the id of the establishment:",
@@ -32,11 +32,10 @@ export async function getItemsPriceOrder() {
           choices: ["ASC","DESC"]
         },
       ]);
-
       // starting the spinner
       const spinner = ora("Sorting and displaying food items...").start();
-      const foodItem = await conn.query("SELECT * FROM food_item WHERE establishment_id=? ORDER BY price $(validSortOrder)",
-                                        [foodItem.id, foodItem.sortOrder,]
+      const foodItem = await conn.query("SELECT * FROM food_item WHERE establishment_id=? ORDER BY price ?" + foodItem.sortOrder,
+                                        [foodItem.id]
       );
       // stop the spinner
       spinner.stop();
