@@ -19,7 +19,7 @@ program
   .command("add-review-to-estab")
   .description("Add a review to an establishment.")
   .action(features.feature_1.addReviewToEstab);
-//ADDED BY ALEM  vv
+
 program
   .command("add-review-to-item")
   .description("Add a review to a food item.")
