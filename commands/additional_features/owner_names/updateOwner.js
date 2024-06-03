@@ -121,7 +121,7 @@ export async function updateOwner() {
     spinner.stop();
 
     // confirm operation
-    console.log(chalk.greenBright("Owner edited successfully!"));
+    console.log(chalk.greenBright("Owner updated successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

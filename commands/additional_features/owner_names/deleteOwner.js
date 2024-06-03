@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../auth_cmds.js";
 
 /**
- * Delete contact person.
+ * Delete owner.
  */
 export async function deleteOwner() {
   let conn, spinner, table;
@@ -69,56 +69,51 @@ export async function deleteOwner() {
     }
 
     // show the contacts
-    spinner = ora("Fetching contact persons...").start();
-    const contactPersons = await conn.query(
-      "SELECT contact_person FROM food_establishment_contact_person WHERE establishment_id=?",
+    spinner = ora("Fetching owners...").start();
+    const owners = await conn.query(
+      "SELECT owner_name FROM food_establishment_owner_name WHERE establishment_id=?",
       [establishmentIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Contact Person")],
+      head: [chalk.green("Owner")],
     });
-    for (let tuple of contactPersons) {
-      table.push([tuple.contact_person]);
+    for (let tuple of owners) {
+      table.push([tuple.owner_name]);
     }
     console.log(table.toString());
 
-    if (contactPersons.length === 0) {
-      console.log(chalk.blueBright("No contact persons yet."));
+    if (owners.length === 0) {
+      console.log(chalk.blueBright("No owners yet."));
       process.exit(0);
     }
 
-    const contactPersonPrompt = await inquirer.prompt([
+    const ownerPrompt = await inquirer.prompt([
       {
-        name: "contactPerson",
-        message: "Enter the contact person:",
+        name: "owner",
+        message: "Enter the owner:",
         type: "input",
       },
     ]);
 
-    // double check if contact person does not exist
-    if (
-      !contactPersons.find(
-        (contactPerson) =>
-          contactPerson.contact_person === contactPersonPrompt.contactPerson
-      )
-    ) {
-      console.log(chalk.magentaBright("Contact person does not exist."));
+    // double check if owner does not exists
+    if (!owners.find((owner) => owner.owner_name === ownerPrompt.owner)) {
+      console.log(chalk.magentaBright("Owner does not exist."));
       process.exit(0);
     }
 
     // insert to db
-    spinner = ora("Deleting contact person...").start();
+    spinner = ora("Deleting owner...").start();
     await conn.query(
-      "DELETE FROM food_establishment_contact_person WHERE establishment_id=? AND contact_person=?",
-      [establishmentIdPrompt.id, contactPersonPrompt.contactPerson]
+      "DELETE FROM food_establishment_owner_name WHERE establishment_id=? AND owner_name=?",
+      [establishmentIdPrompt.id, ownerPrompt.owner]
     );
     spinner.stop();
 
     // confirm operation
-    console.log(chalk.greenBright("Contact deleted successfully!"));
+    console.log(chalk.greenBright("Owner deleted successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

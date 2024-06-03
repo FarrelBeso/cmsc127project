@@ -86,7 +86,6 @@ export async function searchOwner() {
     }
 
     // confirm operation
-    console.log(chalk.greenBright("Owner added successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
