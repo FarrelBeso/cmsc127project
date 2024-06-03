@@ -1,13 +1,14 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
  * Get all food items belonging to the specified type and within a set price range.
  */
 export async function getItemsByPriceType() {
-  let conn;
+  let conn, table;
   try {
     // connect to db
     conn = await connectDB();
@@ -16,12 +17,12 @@ export async function getItemsByPriceType() {
     const answers = await inquirer.prompt([
       {
         name: "minPrice",
-        message: "Enter the type of the food item to search:",
+        message: "Enter the minimum price amount:",
         type: "input",
       },
       {
         name: "maxPrice",
-        message: "Enter the type of the food item to search:",
+        message: "Enter the maximum price amount:",
         type: "input",
       },
       {
@@ -34,9 +35,8 @@ export async function getItemsByPriceType() {
     // starting the spinner
     const spinner = ora("Searching food item...").start();
     // searching in the database
-    const results = await conn.query(
-      "SELECT * FROM food_item WHERE price >= ? AND price <= ? AND food_id IN (SELECT food_id FROM food_item_type WHERE type IN ?", 
-      [answers.minPrice,answers.maxPrice,addItems.type]
+    const results = await conn.query("SELECT * FROM food_item WHERE price >= ? AND price <= ? AND food_id IN (SELECT food_id FROM food_item_type NATURAL JOIN food_item WHERE type LIKE ?)", 
+                                      [answers.minPrice,answers.maxPrice,`%${answers.itemType}%`],
     );
     // stopping the spinner
     spinner.stop();
@@ -44,10 +44,22 @@ export async function getItemsByPriceType() {
     if (results.length === 0) {
       console.log(chalk.redBright("No food items found."));
     } else {
-      console.log(chalk.greenBright("Food items found:"));
-      results.forEach(item => {
-        console.log(`- ${item.name}, ${item.price}`);
+      // show table here
+      table = new CliTable3({
+        head: [
+          chalk.green("Food ID"),
+          chalk.green("Name"),
+          chalk.green("Price"),
+        ],
       });
+      for (let tuple of results) {
+        table.push([
+          tuple.food_id,
+          tuple.name,
+          tuple.price,
+        ]);
+      }
+    console.log(table.toString());
     }
 
     await disconnectDB(conn);

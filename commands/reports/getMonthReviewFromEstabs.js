@@ -2,13 +2,14 @@ import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
 import CliTable3 from "cli-table3";
+import { format } from "date-fns";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
  * Get all reviews for an establishment within a month.
  */
 export async function getMonthReviewFromEstabs(){
-  let conn;
+  let conn, table;
     try {
       // connect to db
       conn = await connectDB();
@@ -31,29 +32,27 @@ export async function getMonthReviewFromEstabs(){
       // check if review/s exist or not
       if (reviews.length === 0){
         console.log(chalk.blueBright("There is no review/s for the establishment within the last 30 days."));
-      } else {
-          console.log(reviews);
-        }
+      }
 
       // show table here
       table = new CliTable3({
         head: [
-          chalk.green("Establishment ID"),
-          chalk.green("Review Date"),
           chalk.green("Review ID"),
-          chalk.green("User ID"),
+          chalk.green("Review Date"),
           chalk.green("Rating"),
-          chalk.green("Description")
+          chalk.green("Description"),
+          chalk.green("Establishment ID"),
+          chalk.green("User ID"),
         ],
       });
       for (let tuple of reviews) {
         table.push([
-          tuple.establishment_id,
-          tuple.review_date,
           tuple.review_id,
-          tuple.user_id,
+          format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
           tuple.rating,
           tuple.description,
+          tuple.establishment_id,
+          tuple.user_id,
         ]);
       }
       console.log(table.toString());

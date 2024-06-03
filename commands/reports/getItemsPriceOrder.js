@@ -1,20 +1,19 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
  * Get the food items from an establishment arranged according to price.
  */
 export async function getItemsPriceOrder() {
-  let conn;
+  let conn, table;
   try {
     // connect to db
     conn = await connectDB()
-      // Ask user whether to arrange price list in increasing or decreasing order
-      const validSortOrder = sort === "DESC" ? "DESC" : "ASC";
       // check
-      const item = await inquirer.prompt([
+      const answers = await inquirer.prompt([
         {
           name: "id",
           message: "Enter the id of the establishment:",
@@ -34,11 +33,33 @@ export async function getItemsPriceOrder() {
       ]);
       // starting the spinner
       const spinner = ora("Sorting and displaying food items...").start();
-      const foodItem = await conn.query("SELECT * FROM food_item WHERE establishment_id=? ORDER BY price ?" + foodItem.sortOrder,
-                                        [foodItem.id]
+
+      const results = await conn.query("SELECT * FROM food_item WHERE establishment_id=? ORDER BY price " + answers.sortOrder,
+                                        [answers.id,]
       );
       // stop the spinner
       spinner.stop();
+
+      // show table here
+      table = new CliTable3({
+        head: [
+          chalk.green("Food ID"),
+          chalk.green("Name"),
+          chalk.green("Price"),
+          chalk.green("Availability"),
+          chalk.green("Establishment ID"),
+        ],
+      });
+      for (let tuple of results) {
+        table.push([
+          tuple.food_id,
+          tuple.name,
+          tuple.price,
+          tuple.availability,
+          tuple.establishment_id,
+        ]);
+      }
+      console.log(table.toString());
                 
       await disconnectDB(conn);
       } catch (error) {
