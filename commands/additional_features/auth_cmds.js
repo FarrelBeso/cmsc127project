@@ -22,10 +22,11 @@ export async function register() {
     ]);
 
     // then fetch to check if there already is an email for that
-    spinner = ora("Creating account...").start();
-    const emailCheck = await conn.query("SELECT FROM user WHERE email=?", [
-      emailPrompt.email,
-    ]);
+    spinner = ora("Searching user...").start();
+    const emailCheck = await conn.query(
+      "SELECT email FROM user WHERE email=?",
+      [emailPrompt.email]
+    );
     spinner.stop();
 
     // exit if there is duplicate
@@ -60,7 +61,8 @@ export async function register() {
 
     // Check if passwords match
     if (answers.password !== answers.confirmPassword) {
-      throw "Passwords do not match.";
+      console.log(chalk.magentaBright("Passwords do not match."));
+      process.exit(0);
     }
 
     // starting the spinner
@@ -124,7 +126,8 @@ export async function login(conn) {
 
     // if there are no response, then throw an error
     if (response.length === 0) {
-      throw "User does not exist.";
+      console.log(chalk.magentaBright("User does not exist."));
+      process.exit(0);
     }
     const passInput = await inquirer.prompt([
       {
@@ -139,7 +142,8 @@ export async function login(conn) {
       response[0].hashed_password
     );
     if (!isPasswordValid) {
-      throw "Invalid password.";
+      console.log(chalk.magentaBright("Invalid password."));
+      process.exit(0);
     }
 
     console.log(chalk.greenBright("Login successful!"));
