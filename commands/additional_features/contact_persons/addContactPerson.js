@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../auth_cmds.js";
 
 /**
- * Add contact number.
+ * Add contact person.
  */
 export async function addContactPerson() {
   let conn, spinner, table;
@@ -69,50 +69,50 @@ export async function addContactPerson() {
     }
 
     // show the contacts
-    spinner = ora("Fetching contact numbers...").start();
-    const contactNumbers = await conn.query(
-      "SELECT contact_number FROM food_establishment_contact_number WHERE establishment_id=?",
+    spinner = ora("Fetching contact persons...").start();
+    const contactPersons = await conn.query(
+      "SELECT contact_person FROM food_establishment_contact_person WHERE establishment_id=?",
       [establishmentIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Contact Number")],
+      head: [chalk.green("Contact Person")],
     });
-    for (let tuple of contactNumbers) {
-      table.push([tuple.contact_number]);
+    for (let tuple of contactPersons) {
+      table.push([tuple.contact_person]);
     }
     console.log(table.toString());
 
-    if (contactNumbers.length === 0) {
-      console.log(chalk.blueBright("No contact numbers yet."));
+    if (contactPersons.length === 0) {
+      console.log(chalk.blueBright("No contact persons yet."));
     }
 
-    const contactNumberPrompt = await inquirer.prompt([
+    const contactPersonPrompt = await inquirer.prompt([
       {
-        name: "contactNumber",
-        message: "Enter the contact number:",
+        name: "contactPerson",
+        message: "Enter the contact person:",
         type: "input",
       },
     ]);
 
-    // double check if contact number already exists
+    // double check if contact person already exists
     if (
-      contactNumbers.find(
-        (contactNumber) =>
-          contactNumber.contact_number === contactNumberPrompt.contactNumber
+      contactPersons.find(
+        (contactPerson) =>
+          contactPerson.contact_person === contactPersonPrompt.contactPerson
       )
     ) {
-      console.log(chalk.magentaBright("Contact number already exists."));
+      console.log(chalk.magentaBright("Contact person already exists."));
       process.exit(0);
     }
 
     // insert to db
-    spinner = ora("Adding contact number...").start();
+    spinner = ora("Adding contact person...").start();
     await conn.query(
-      "INSERT INTO food_establishment_contact_number (establishment_id, contact_number) VALUES (?, ?)",
-      [establishmentIdPrompt.id, contactNumberPrompt.contactNumber]
+      "INSERT INTO food_establishment_contact_person (establishment_id, contact_person) VALUES (?, ?)",
+      [establishmentIdPrompt.id, contactPersonPrompt.contactPerson]
     );
     spinner.stop();
 
