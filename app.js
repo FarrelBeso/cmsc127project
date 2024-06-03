@@ -178,6 +178,25 @@ program
   .action(additional_features.users.updateUser);
 
 // FOOD TYPE
+program
+  .command("add-food-type")
+  .description("Add a food type to food item.")
+  .action(additional_features.food_types.addFoodType);
+
+program
+  .command("delete-food-type")
+  .description("Delete a food type from a food item.")
+  .action(additional_features.food_types.deleteFoodType);
+
+program
+  .command("search-food-type")
+  .description("Search food types of a food item.")
+  .action(additional_features.food_types.searchFoodType);
+
+program
+  .command("update-food-type")
+  .description("Update the food type of a food item.")
+  .action(additional_features.food_types.updateFoodType);
 
 // ALLERGENS
 program
