@@ -10,8 +10,13 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 export async function searchUser() {
   let conn, table;
   try {
-    // search query
+    // login first
     conn = await connectDB();
+    const loginResponse = await login(conn);
+    if (!loginResponse.success || loginResponse.user.usertype !== "admin") {
+      throw "Only admin users can search users.";
+    }
+
     const answers = await inquirer.prompt([
       {
         name: "searchTerm",
