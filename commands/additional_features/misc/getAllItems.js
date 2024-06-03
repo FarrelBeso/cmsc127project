@@ -31,7 +31,7 @@ export async function getAllItems() {
       head: [
         chalk.green("Food ID"),
         chalk.green("Name"),
-        chalk.green("Price"),
+        chalk.green("Price (PhP)"),
         chalk.green("Availability"),
         chalk.green("Establishment Name"),
       ],
