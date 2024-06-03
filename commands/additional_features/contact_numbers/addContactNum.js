@@ -18,96 +18,104 @@ export async function addContactNum() {
       throw "Only admin users can use this functionality.";
     }
 
-    // show all food items first with the allergen
-    spinner = ora("Fetching food items...").start();
-    const items = await conn.query(
-      "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
-      JOIN food_establishment e ON f.establishment_id=e.establishment_id \
-      ORDER BY e.name, f.name"
-    );
+    // show all food establishments first
+    spinner = ora("Fetching food establishments...").start();
+    const establishments = await conn.query("SELECT * from food_establishment");
     spinner.stop();
 
-    if (items.length === 0) {
-      console.log(chalk.blueBright("No food items yet."));
+    if (establishments.length === 0) {
+      console.log(chalk.blueBright("No establishments yet."));
       process.exit(0);
     }
 
     // show the tables otherwise
     table = new CliTable3({
       head: [
-        chalk.green("Food ID"),
+        chalk.green("Establishment ID"),
         chalk.green("Name"),
-        chalk.green("Establishment Name"),
+        chalk.green("Address"),
+        chalk.green("Email"),
       ],
     });
-    for (let tuple of items) {
-      table.push([tuple.food_id, tuple.name, tuple.establishment_name]);
+    for (let tuple of establishments) {
+      table.push([
+        tuple.establishment_id,
+        tuple.name,
+        tuple.address,
+        tuple.email,
+      ]);
     }
     console.log(table.toString());
 
-    const foodIdPrompt = await inquirer.prompt([
+    const establishmentIdPrompt = await inquirer.prompt([
       {
         name: "id",
-        message: "Enter food id:",
+        message: "Enter establishment id:",
         type: "input",
       },
     ]);
 
-    // check if there is food id in the fetched items
-    if (!items.find((item) => item.food_id == foodIdPrompt.id)) {
-      console.log(chalk.magentaBright("Food id not found."));
+    // check if there is establishment id
+    if (
+      !establishments.find(
+        (establishment) =>
+          establishment.establishment_id == establishmentIdPrompt.id
+      )
+    ) {
+      console.log(chalk.magentaBright("Establishment id not found."));
       process.exit(0);
     }
 
-    // show the allergens of the id
-    spinner = ora("Fetching allergens...").start();
-    const allergens = await conn.query(
-      "SELECT allergen FROM food_item_allergen WHERE food_id=?",
-      [foodIdPrompt.id]
+    // show the contacts
+    spinner = ora("Fetching contact numbers...").start();
+    const contactNumbers = await conn.query(
+      "SELECT contact_number FROM food_establishment_contact_number WHERE establishment_id=?",
+      [establishmentIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Allergen")],
+      head: [chalk.green("Contact Number")],
     });
-    for (let tuple of allergens) {
-      table.push([tuple.allergen]);
+    for (let tuple of contactNumbers) {
+      table.push([tuple.contact_number]);
     }
     console.log(table.toString());
 
-    if (allergens.length === 0) {
-      console.log(chalk.blueBright("No allergens yet."));
+    if (contactNumbers.length === 0) {
+      console.log(chalk.blueBright("No contact numbers yet."));
     }
 
-    const allergenPrompt = await inquirer.prompt([
+    const contactNumberPrompt = await inquirer.prompt([
       {
-        name: "allergen",
-        message: "Enter the allergen:",
+        name: "contactNumber",
+        message: "Enter the contact number:",
         type: "input",
       },
     ]);
 
-    // double check if allergen already exists
+    // double check if contact number already exists
     if (
-      allergens.find(
-        (allergen) => allergen.allergen === allergenPrompt.allergen
+      contactNumbers.find(
+        (contactNumber) =>
+          contactNumber.contact_number === contactNumberPrompt.contactNumber
       )
     ) {
-      console.log(chalk.magentaBright("Allergen already exists."));
+      console.log(chalk.magentaBright("Contact number already exists."));
       process.exit(0);
     }
 
     // insert to db
-    spinner = ora("Adding allergen...").start();
+    spinner = ora("Adding contact number...").start();
     await conn.query(
-      "INSERT INTO food_item_allergen (food_id, allergen) VALUES (?, ?)",
-      [foodIdPrompt.id, allergenPrompt.allergen]
+      "INSERT INTO food_establishment_contact_number (establishment_id, contact_number) VALUES (?, ?)",
+      [establishmentIdPrompt.id, contactNumberPrompt.contact_number]
     );
     spinner.stop();
 
     // confirm operation
-    console.log(chalk.greenBright("Allergen added successfully!"));
+    console.log(chalk.greenBright("Contact added successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
