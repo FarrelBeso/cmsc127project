@@ -1,28 +1,49 @@
 import chalk from "chalk";
 import ora from "ora";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
  * View all food establishments.
  */
 export async function getAllEstabs() {
-  let conn;
+  let conn, spinner, table;
   try {
     // connect first
     conn = await connectDB();
-    // starting the spinner
-    const spinner = ora("Fetching all establishments...").start();
-    // fetching all the establishments from the database
-    const establishments = await conn.query("SELECT * FROM food_establishment");
-    // stopping the spinner
+
+    // show all establishments
+    spinner = ora("Searching establishments...").start();
+    const establishments = await conn.query(
+      "SELECT * FROM food_establishment ORDER BY name"
+    );
     spinner.stop();
 
-    // check if establishments exist or not
+    // exit if there are none
     if (establishments.length === 0) {
-      console.log(chalk.blueBright("Establishments not found."));
-    } else {
-      console.log(establishments);
+      console.log(chalk.blueBright("No establishments found."));
+      process.exit(0);
     }
+
+    // show table here
+    table = new CliTable3({
+      head: [
+        chalk.green("Establishment ID"),
+        chalk.green("Name"),
+        chalk.green("Address"),
+        chalk.green("Email"),
+      ],
+    });
+    for (let tuple of establishments) {
+      table.push([
+        tuple.establishment_id,
+        tuple.name,
+        tuple.address,
+        tuple.email,
+      ]);
+    }
+    console.log(table.toString());
+
     // finally disconnect
     await disconnectDB(conn);
   } catch (error) {
