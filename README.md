@@ -1,10 +1,5 @@
 # CMSC 127 Project
 
-# Latest Note
-
-I've updated the files `initialize.sql` and `sampledata.sql` for easier deletion purposes.
-Please redo the steps in the before running part of this file if you want to try the deletion functions.
-
 ## Instructions
 
 ## Before Running
@@ -13,15 +8,15 @@ Please redo the steps in the before running part of this file if you want to try
 1. Login to MariaDB as root user. Ensure that you're in the root folder of the project.
 2. Import the files from `initialize.sql` and `sampledata.sql`.
    <br>
-   `source initialize.sql`
+   `source initialize.sql;`
    <br>
-   `source sampledata.sql`
+   `source sampledata.sql;`
 3. Create a user for the application.
    <br>
-   `CREATE USER foodreviewer IDENTIFIED BY 'foodreview123'`
+   `CREATE USER foodreviewer IDENTIFIED BY 'foodreview123';`
 4. Grant access to that new user.
    <br>
-   `GRANT ALL PRIVILEGES ON food_reviewer.* TO foodreviewer`
+   `GRANT ALL PRIVILEGES ON food_reviewer.* TO foodreviewer;`
 5. Quit as a root user.
    <br>
    `quit`
@@ -29,7 +24,7 @@ Please redo the steps in the before running part of this file if you want to try
    <br>
    `mysql -ufoodreviewer -pfoodreview123`
    <br>
-   `show databases`
+   `show databases;`
 
 # Troubleshooting
 
@@ -41,8 +36,12 @@ Please redo the steps in the before running part of this file if you want to try
 
 - Restart your mysql server (depends on the OS you're using so consult the internet how to do that).
 - Login to mariaDB as a root user.
-- Drop the user (`DROP USER foodreviewer`).
+- Drop the user (`DROP USER foodreviewer;`).
 - Redo from step 2.
+
+3. To check all the command available:
+
+- Simply type the following: `food-reviewer -h`
 
 ## Running the App
 
@@ -69,7 +68,6 @@ Please redo the steps in the before running part of this file if you want to try
 3. Adding a function requires adding a new file within a folder.
 4. Once you're done adding the function in the file, connect it in the corresponding `index.js` in the folder. Follow the format from prior commands.
 5. You may now use it in the `app.js` in the folder. Follow the format to append it to the program from prior commands.
-6. Refactoring the functions within more discrete files (since the files currently would be too long) will be done later.
 
 ## Other Info
 
