@@ -140,6 +140,27 @@ program
 
 // FOOD TYPE
 
+// ALLERGENS
+program
+  .command("add-allergen")
+  .description("Add an allergen to food item.")
+  .action(additional_features.allergens.addAllergen);
+
+program
+  .command("delete-allergen")
+  .description("Delete an allergen from food item.")
+  .action(additional_features.allergens.deleteAllergen);
+
+program
+  .command("search-allergen")
+  .description("Search allergens from food item.")
+  .action(additional_features.allergens.searchAllergen);
+
+program
+  .command("update-allergen")
+  .description("Update an allergen in a food item.")
+  .action(additional_features.allergens.updateAllergen);
+
 // MISCELLANEOUS
 program
   .command("get-all-items")
