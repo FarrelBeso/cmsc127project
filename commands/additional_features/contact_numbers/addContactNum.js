@@ -20,7 +20,9 @@ export async function addContactNum() {
 
     // show all food establishments first
     spinner = ora("Fetching food establishments...").start();
-    const establishments = await conn.query("SELECT * from food_establishment");
+    const establishments = await conn.query(
+      "SELECT * from food_establishment ORDER BY name"
+    );
     spinner.stop();
 
     if (establishments.length === 0) {

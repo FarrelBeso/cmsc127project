@@ -20,7 +20,9 @@ export async function updateContactNum() {
 
     // show all food establishments first
     spinner = ora("Fetching food establishments...").start();
-    const establishments = await conn.query("SELECT * from food_establishment");
+    const establishments = await conn.query(
+      "SELECT * from food_establishment ORDER BY name"
+    );
     spinner.stop();
 
     if (establishments.length === 0) {
@@ -85,6 +87,7 @@ export async function updateContactNum() {
 
     if (contactNumbers.length === 0) {
       console.log(chalk.blueBright("No contact numbers yet."));
+      process.exit(0);
     }
 
     const contactNumberPrompt = await inquirer.prompt([
@@ -95,14 +98,14 @@ export async function updateContactNum() {
       },
     ]);
 
-    // double check if contact number already exists
+    // double check if contact number does not exist
     if (
-      contactNumbers.find(
+      !contactNumbers.find(
         (contactNumber) =>
           contactNumber.contact_number === contactNumberPrompt.contactNumber
       )
     ) {
-      console.log(chalk.magentaBright("Contact number already exists."));
+      console.log(chalk.magentaBright("Contact number does not exist."));
       process.exit(0);
     }
 
