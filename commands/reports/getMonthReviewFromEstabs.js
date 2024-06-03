@@ -22,7 +22,7 @@ export async function getMonthReviewFromEstabs(){
       // starting the spinner
       const spinner = ora("Fetching establishment reviews...").start();
       // getting all the establishment reviews made within 30 days
-      const reviews = await conn.query("SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND establishment_id IS NOT NULL",
+      const reviews = await conn.query("SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND establishment_id = ?",
                                        [answers.id]);
       // stopping the spinner
       spinner.stop();
@@ -33,6 +33,30 @@ export async function getMonthReviewFromEstabs(){
       } else {
           console.log(reviews);
         }
+
+      // show table here
+      table = new CliTable3({
+        head: [
+          chalk.green("Establishment ID"),
+          chalk.green("Review Date"),
+          chalk.green("Review ID"),
+          chalk.green("User ID"),
+          chalk.green("Rating"),
+          chalk.green("Description")
+        ],
+      });
+      for (let tuple of reviews) {
+        table.push([
+          tuple.establishment_id,
+          tuple.review_date,
+          tuple.review_id,
+          tuple.user_id,
+          tuple.rating,
+          tuple.description,
+        ]);
+      }
+      console.log(table.toString());
+
       await disconnectDB(conn);
     } catch (error) {
       // Error Handling

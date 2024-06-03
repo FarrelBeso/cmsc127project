@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
-import { connectDB, disconnectDB } from "../../../db/connectDB.js";
+import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
  * Get all food items belonging to the specified type and within a set price range.
