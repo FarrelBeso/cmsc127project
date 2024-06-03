@@ -203,6 +203,27 @@ program
   .description("Update a contact person to food establishment.")
   .action(additional_features.contact_persons.updateContactPerson);
 
+// OWNER NAMES
+program
+  .command("add-owner")
+  .description("Add an owner to food establishment.")
+  .action(additional_features.owner_names.addOwner);
+
+program
+  .command("delete-owner")
+  .description("Delete an owner from a food establishment.")
+  .action(additional_features.owner_names.deleteOwner);
+
+program
+  .command("search-owner")
+  .description("Search an owner from a food establishment.")
+  .action(additional_features.owner_names.searchOwner);
+
+program
+  .command("update-owner")
+  .description("Update the owner in a food establishment.")
+  .action(additional_features.owner_names.updateOwner);
+
 // MISCELLANEOUS
 program
   .command("get-all-items")
