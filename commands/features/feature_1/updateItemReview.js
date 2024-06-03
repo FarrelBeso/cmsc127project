@@ -1,6 +1,8 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
+import { format } from "date-fns";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../../additional_features/auth_cmds.js";
 
@@ -8,31 +10,120 @@ import { login } from "../../additional_features/auth_cmds.js";
  * Update a review for a food item.
  */
 export async function updateItemReview() {
-  let conn;
+  let conn, spinner, table;
   try {
-    // connect to db
+    // login first
     conn = await connectDB();
-    // first try to login
     const loginResponse = await login(conn);
     if (!loginResponse.success) {
       throw loginResponse.msg;
     }
 
+    // get reviews
+    spinner = ora("Fetching your reviews...").start();
+    const userReviews = await conn.query(
+      "SELECT r.review_id, r.review_date, r.rating, r.description, r.establishment_id, f.name FROM review r \
+      JOIN food_item f ON r.food_id=f.food_id \
+      WHERE r.user_id=? AND f.food_id IS NOT NULL \
+      ORDER BY f.name, r.review_date DESC",
+      [loginResponse.user.user_id]
+    );
+    spinner.stop();
+
+    // end if you have no reviews yet on items
+    if (userReviews.length === 0) {
+      console.log(
+        chalk.blueBright("You have no reviews made yet. Try adding one!")
+      );
+      process.exit(0);
+    }
+
+    // show table of user's reviews on items
+    table = new CliTable3({
+      head: [
+        chalk.green("Food ID"),
+        chalk.green("Food Name"),
+        chalk.green("Review ID"),
+        chalk.green("Review Date"),
+        chalk.green("Rating"),
+        chalk.green("Description"),
+      ],
+    });
+    for (let tuple of userReviews) {
+      table.push([
+        tuple.food_id,
+        tuple.name,
+        tuple.review_id,
+        format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
+        tuple.rating,
+        tuple.description,
+      ]);
+    }
+    console.log(table.toString());
+
     // query the user if the food item exists
-    const checkPrompt = await inquirer.prompt([
+    const foodIdPrompt = await inquirer.prompt([
       {
         name: "id",
-        message: "Enter the id of the food item:",
+        message: "Select the id of the food item:",
         type: "input",
       },
     ]);
-    const items = await conn.query(
-      "SELECT * FROM food_item WHERE item_id=?",
-      [checkPrompt.id]
-    );
 
-    if (items.length === 0) {
-      throw "Food item does not exist.";
+    // get the reviews
+    spinner = ora("Fetching your reviews...").start();
+    const foodReviews = await conn.query(
+      "SELECT * FROM review WHERE user_id=? AND food_id=? ORDER BY review_date DESC",
+      [loginResponse.user.user_id, foodIdPrompt.id]
+    );
+    spinner.stop();
+
+    // end if that food item does not exist
+    if (foodReviews.length === 0) {
+      console.log(chalk.blueBright("Food item does not exist."));
+      process.exit(0);
+    }
+
+    // show the reviews on that item
+    table = new CliTable3({
+      head: [
+        chalk.green("Review ID"),
+        chalk.green("Review Date"),
+        chalk.green("Rating"),
+        chalk.green("Description"),
+      ],
+    });
+    for (let tuple of foodReviews) {
+      table.push([
+        tuple.review_id,
+        format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
+        tuple.rating,
+        tuple.description,
+      ]);
+    }
+    console.log(table.toString());
+
+    // then select which review id to select
+    const reviewIdPrompt = await inquirer.prompt([
+      {
+        name: "id",
+        message: "Select the id of the review:",
+        type: "input",
+      },
+    ]);
+
+    // fetch the review on that review id
+    spinner = ora("Fetching review...").start();
+    const review = await conn.query(
+      "SELECT * FROM review WHERE review_id=? AND user_id=? AND food_id=?",
+      [reviewIdPrompt.id, loginResponse.user.user_id, foodIdPrompt.id]
+    );
+    spinner.stop();
+
+    // end if review does not exist
+    if (review.length === 0) {
+      console.log(chalk.blueBright("Review does not exist."));
+      process.exit(0);
     }
 
     // query for the review info to be updated
@@ -49,27 +140,20 @@ export async function updateItemReview() {
       },
     ]);
 
-    // starting the spinner
-    const spinner = ora("Updating review...").start();
-    // updating the review in the database
+    // update review
+    spinner = ora("Updating review...").start();
     await conn.query(
-      "UPDATE review SET rating=?, description=? WHERE item_id=? AND user_id=?",
-      [
-        answers.rating,
-        answers.description,
-        checkPrompt.id,
-        loginResponse.user.user_id
-      ]
+      "UPDATE review SET rating=?, description=? WHERE review_id=?",
+      [answers.rating, answers.description, reviewIdPrompt.id]
     );
-    // stopping the spinner
     spinner.stop();
 
+    // operation confirm
     console.log(chalk.blueBright("Review updated!"));
-
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
-    console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
+    console.log(chalk.redBright(`Error: ${error}`));
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }
