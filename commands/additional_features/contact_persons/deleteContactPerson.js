@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 import { login } from "../auth_cmds.js";
 
 /**
- * Delete contact number.
+ * Delete contact person.
  */
 export async function deleteContactPerson() {
   let conn, spinner, table;
@@ -69,51 +69,51 @@ export async function deleteContactPerson() {
     }
 
     // show the contacts
-    spinner = ora("Fetching contact numbers...").start();
-    const contactNumbers = await conn.query(
-      "SELECT contact_number FROM food_establishment_contact_number WHERE establishment_id=?",
+    spinner = ora("Fetching contact persons...").start();
+    const contactPersons = await conn.query(
+      "SELECT contact_person FROM food_establishment_contact_person WHERE establishment_id=?",
       [establishmentIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Contact Number")],
+      head: [chalk.green("Contact Person")],
     });
-    for (let tuple of contactNumbers) {
-      table.push([tuple.contact_number]);
+    for (let tuple of contactPersons) {
+      table.push([tuple.contact_person]);
     }
     console.log(table.toString());
 
-    if (contactNumbers.length === 0) {
-      console.log(chalk.blueBright("No contact numbers yet."));
+    if (contactPersons.length === 0) {
+      console.log(chalk.blueBright("No contact persons yet."));
       process.exit(0);
     }
 
-    const contactNumberPrompt = await inquirer.prompt([
+    const contactPersonPrompt = await inquirer.prompt([
       {
-        name: "contactNumber",
-        message: "Enter the contact number:",
+        name: "contactPerson",
+        message: "Enter the contact person:",
         type: "input",
       },
     ]);
 
-    // double check if contact number does not exist
+    // double check if contact person does not exist
     if (
-      !contactNumbers.find(
-        (contactNumber) =>
-          contactNumber.contact_number === contactNumberPrompt.contactNumber
+      !contactPersons.find(
+        (contactPerson) =>
+          contactPerson.contact_person === contactPersonPrompt.contactPerson
       )
     ) {
-      console.log(chalk.magentaBright("Contact number does not exist."));
+      console.log(chalk.magentaBright("Contact person does not exist."));
       process.exit(0);
     }
 
     // insert to db
-    spinner = ora("Deleting contact number...").start();
+    spinner = ora("Deleting contact person...").start();
     await conn.query(
-      "DELETE FROM food_establishment_contact_number WHERE establishment_id=? AND contact_number=?",
-      [establishmentIdPrompt.id, contactNumberPrompt.contactNumber]
+      "DELETE FROM food_establishment_contact_person WHERE establishment_id=? AND contact_person=?",
+      [establishmentIdPrompt.id, contactPersonPrompt.contactPerson]
     );
     spinner.stop();
 

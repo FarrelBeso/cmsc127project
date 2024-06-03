@@ -5,7 +5,7 @@ import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 
 /**
- * Search contact number.
+ * Search contact person.
  */
 export async function searchContactPerson() {
   let conn, spinner, table;
@@ -64,24 +64,24 @@ export async function searchContactPerson() {
     }
 
     // show the contacts
-    spinner = ora("Fetching contact numbers...").start();
-    const contactNumbers = await conn.query(
-      "SELECT contact_number FROM food_establishment_contact_number WHERE establishment_id=?",
+    spinner = ora("Fetching contact persons...").start();
+    const contactPersons = await conn.query(
+      "SELECT contact_person FROM food_establishment_contact_person WHERE establishment_id=?",
       [establishmentIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Contact Number")],
+      head: [chalk.green("Contact Person")],
     });
-    for (let tuple of contactNumbers) {
-      table.push([tuple.contact_number]);
+    for (let tuple of contactPersons) {
+      table.push([tuple.contact_person]);
     }
     console.log(table.toString());
 
-    if (contactNumbers.length === 0) {
-      console.log(chalk.blueBright("No contact numbers yet."));
+    if (contactPersons.length === 0) {
+      console.log(chalk.blueBright("No contact persons yet."));
     }
 
     await disconnectDB(conn);
