@@ -56,7 +56,9 @@ export async function getItemsFromEstab() {
     // starting the spinner
     spinner = ora("Fetching food items from establishment...").start();
     const items = await conn.query(
-      "SELECT * FROM food_item where establishment_id=?",
+      "SELECT f.food_id, f.name, f.price, f.availability, e.name establishment_name FROM food_item f \
+      JOIN food_establishment e ON f.establishment_id=e.establishment_id \
+      WHERE f.establishment_id=? ORDER BY f.name",
       [establishmentIdPrompt.id]
     );
     // stopping the spinner
