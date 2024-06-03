@@ -1,18 +1,17 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";  // Added to display results in a table
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 
 /**
  * Search for a food item.
  */
 export async function searchItem() {
-  let conn;
+  let conn, table;
   try {
-    // connect to db
     conn = await connectDB();
 
-    // query the user for search term
     const answers = await inquirer.prompt([
       {
         name: "searchTerm",
@@ -21,33 +20,45 @@ export async function searchItem() {
       },
     ]);
 
-    // starting the spinner
-    const spinner = ora("Searching food item...").start();
-    // searching in the database
+    const spinner = ora("Searching food items...").start();
     const results = await conn.query(
-      "SELECT * FROM food_item WHERE name LIKE ? OR type LIKE ?",
+      "SELECT * FROM food_item WHERE name LIKE ? OR type LIKE ?",  // Make sure your schema includes a 'type' column or adjust this query
       [`%${answers.searchTerm}%`, `%${answers.searchTerm}%`]
     );
-    // stopping the spinner
     spinner.stop();
 
     if (results.length === 0) {
-      console.log(chalk.redBright("No food items found."));
-    } else {
-      console.log(chalk.greenBright("Food items found:"));
-      results.forEach(item => {
-        console.log(`- ${item.name}, ${item.price}, ${item.type}`);
-      });
+      console.log(chalk.blueBright("No food items found."));
+      process.exit(0);
     }
+
+    // show table here
+    table = new CliTable3({
+      head: [
+        chalk.green("Item ID"),
+        chalk.green("Name"),
+        chalk.green("Price"),
+        chalk.green("Type"),  // Make sure this column exists or adjust accordingly
+        chalk.green("Availability")
+      ],
+    });
+    for (let item of results) {
+      table.push([
+        item.item_id,
+        item.name,
+        item.price,
+        item.type,  // Make sure this column exists or adjust accordingly
+        item.availability ? 'Yes' : 'No'
+      ]);
+    }
+    console.log(table.toString());
 
     await disconnectDB(conn);
   } catch (error) {
-    // Error Handling
     console.log(chalk.redBright(`Something went wrong, Error: ${error}`));
     if (conn) await disconnectDB(conn);
     process.exit(1);
   }
 
-  // close the program
   process.exit(0);
 }
