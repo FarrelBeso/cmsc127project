@@ -182,6 +182,27 @@ program
   .description("Update a contact number to food establishment.")
   .action(additional_features.contact_numbers.updateContactNum);
 
+// CONTACT PERSONS
+program
+  .command("add-contact-person")
+  .description("Add a contact person to food establishment.")
+  .action(additional_features.contact_persons.addContactPerson);
+
+program
+  .command("delete-contact-person")
+  .description("Delete a contact person from food establishment.")
+  .action(additional_features.contact_persons.deleteContactPerson);
+
+program
+  .command("search-contact-person")
+  .description("Search a contact person in a food establishment.")
+  .action(additional_features.contact_persons.searchContactPerson);
+
+program
+  .command("update-contact-person")
+  .description("Update a contact person to food establishment.")
+  .action(additional_features.contact_persons.updateContactPerson);
+
 // MISCELLANEOUS
 program
   .command("get-all-items")
