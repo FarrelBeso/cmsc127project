@@ -25,7 +25,7 @@ export async function getItemsByType() {
     const spinner = ora("Searching food item...").start();
     // searching in the database
     const results = await conn.query(
-      "SELECT * FROM food_item WHERE type LIKE ?", [`%${answers.itemType}%`]
+      "SELECT * FROM food_item WHERE food_item_type LIKE ?", [`%${answers.itemType}%`]
     );
     // stopping the spinner
     spinner.stop();
