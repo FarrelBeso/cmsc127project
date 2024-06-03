@@ -108,7 +108,9 @@ program
 
 program
   .command("get-items-by-price-type")
-  .description("Get all food items belonging to the specified type and within a set price range.")
+  .description(
+    "Get all food items belonging to the specified type and within a set price range."
+  )
   .action(reports.getItemsByPriceType);
 
 program
@@ -128,7 +130,9 @@ program
 
 program
   .command("get-items-price-order")
-  .description("Get the food items from an establishment arranged according to price.")
+  .description(
+    "Get the food items from an establishment arranged according to price."
+  )
   .action(reports.getItemsPriceOrder);
 
 program
@@ -137,7 +141,7 @@ program
   .action(reports.getMonthReviewFromEstabs);
 
 program
-  .command("get-month-review-from-item")
+  .command("get-month-review-from-items")
   .description("Get all reviews for an item within a month.")
   .action(reports.getMonthReviewFromItems);
 
@@ -174,6 +178,25 @@ program
   .action(additional_features.users.updateUser);
 
 // FOOD TYPE
+program
+  .command("add-food-type")
+  .description("Add a food type to food item.")
+  .action(additional_features.food_types.addFoodType);
+
+program
+  .command("delete-food-type")
+  .description("Delete a food type from a food item.")
+  .action(additional_features.food_types.deleteFoodType);
+
+program
+  .command("search-food-type")
+  .description("Search food types of a food item.")
+  .action(additional_features.food_types.searchFoodType);
+
+program
+  .command("update-food-type")
+  .description("Update the food type of a food item.")
+  .action(additional_features.food_types.updateFoodType);
 
 // ALLERGENS
 program

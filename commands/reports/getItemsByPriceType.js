@@ -8,7 +8,7 @@ import { connectDB, disconnectDB } from "../../db/connectDB.js";
  * Get all food items belonging to the specified type and within a set price range.
  */
 export async function getItemsByPriceType() {
-  let conn, table;
+  let conn, spinner, table;
   try {
     // connect to db
     conn = await connectDB();
@@ -25,18 +25,40 @@ export async function getItemsByPriceType() {
         message: "Enter the maximum price amount:",
         type: "input",
       },
+    ]);
+
+    // query the user for search term
+    let types = [];
+    let itemPrompt = await inquirer.prompt([
       {
         name: "itemType",
         message: "Enter the type of the food item to search:",
         type: "input",
       },
     ]);
+    types.push(itemPrompt.itemType);
+    let isQuerying = true;
+    while (isQuerying) {
+      itemPrompt = await inquirer.prompt([
+        {
+          name: "itemType",
+          message:
+            "Enter the type of the food item to search (leave blank if you're done):",
+          type: "input",
+        },
+      ]);
+      types.push(itemPrompt.itemType);
+      if (itemPrompt.itemType.length === 0) {
+        isQuerying = false;
+      }
+    }
 
     // starting the spinner
-    const spinner = ora("Searching food item...").start();
+    spinner = ora("Searching food items...").start();
     // searching in the database
-    const results = await conn.query("SELECT * FROM food_item WHERE price >= ? AND price <= ? AND food_id IN (SELECT food_id FROM food_item_type NATURAL JOIN food_item WHERE type LIKE ?)", 
-                                      [answers.minPrice,answers.maxPrice,`%${answers.itemType}%`],
+    const results = await conn.query(
+      "SELECT * FROM food_item WHERE price >= ? AND price <= ? AND food_id IN (SELECT food_id FROM food_item_type NATURAL JOIN food_item WHERE type IN (?))",
+      [answers.minPrice, answers.maxPrice, types]
     );
     // stopping the spinner
     spinner.stop();
@@ -53,13 +75,9 @@ export async function getItemsByPriceType() {
         ],
       });
       for (let tuple of results) {
-        table.push([
-          tuple.food_id,
-          tuple.name,
-          tuple.price,
-        ]);
+        table.push([tuple.food_id, tuple.name, tuple.price]);
       }
-    console.log(table.toString());
+      console.log(table.toString());
     }
 
     await disconnectDB(conn);
