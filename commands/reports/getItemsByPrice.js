@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 
 /**
- * Search for a food item based on price.
+ * Get all food items within a set price range.
  */
 export async function getItemsByPrice() {
   let conn;

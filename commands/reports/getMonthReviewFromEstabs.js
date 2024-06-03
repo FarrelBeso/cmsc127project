@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
- * View all establishment reviews made within a month.
+ * Get all reviews for an establishment within a month.
  */
 export async function getMonthReviewFromEstabs(){
   let conn;

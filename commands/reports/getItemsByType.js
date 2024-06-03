@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 
 /**
- * Search for a food item based on type.
+ * Get all food items belonging to the specified type.
  */
 export async function getItemsByType() {
   let conn;
