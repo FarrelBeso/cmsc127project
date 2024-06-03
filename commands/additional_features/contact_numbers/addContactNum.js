@@ -110,7 +110,7 @@ export async function addContactNum() {
     spinner = ora("Adding contact number...").start();
     await conn.query(
       "INSERT INTO food_establishment_contact_number (establishment_id, contact_number) VALUES (?, ?)",
-      [establishmentIdPrompt.id, contactNumberPrompt.contact_number]
+      [establishmentIdPrompt.id, contactNumberPrompt.contactNumber]
     );
     spinner.stop();
 
