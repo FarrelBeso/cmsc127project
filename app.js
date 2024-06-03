@@ -123,6 +123,21 @@ program
   .description("Register a new user.")
   .action(register);
 
+program
+  .command("delete-user")
+  .description("Delete a user.")
+  .action(additional_features.users.deleteUser);
+
+program
+  .command("search-user")
+  .description("Search for a user.")
+  .action(additional_features.users.searchUser);
+
+program
+  .command("update-user")
+  .description("Update a user.")
+  .action(additional_features.users.updateUser);
+
 // FOOD TYPE
 
 // MISCELLANEOUS
