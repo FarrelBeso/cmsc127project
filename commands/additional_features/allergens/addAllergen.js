@@ -22,7 +22,8 @@ export async function addAllergen() {
     spinner = ora("Fetching food items...").start();
     const items = await conn.query(
       "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
-      JOIN food_establishment e ON f.establishment_id=e.establishment_id"
+      JOIN food_establishment e ON f.establishment_id=e.establishment_id \
+      ORDER BY e.name, f.name"
     );
     spinner.stop();
 
@@ -53,7 +54,7 @@ export async function addAllergen() {
     ]);
 
     // check if there is food id in the fetched items
-    if (!items.find((item) => item.id == foodIdPrompt.id)) {
+    if (!items.find((item) => item.food_id == foodIdPrompt.id)) {
       console.log(chalk.magentaBright("Food id not found."));
       process.exit(0);
     }
@@ -68,18 +69,14 @@ export async function addAllergen() {
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [
-        chalk.green("Food ID"),
-        chalk.green("Name"),
-        chalk.green("Establishment Name"),
-      ],
+      head: [chalk.green("Allergen")],
     });
-    for (let tuple of items) {
-      table.push([tuple.food_id, tuple.name, tuple.establishment_name]);
+    for (let tuple of allergens) {
+      table.push([tuple.allergen]);
     }
     console.log(table.toString());
 
-    if (items.length === 0) {
+    if (allergens.length === 0) {
       console.log(chalk.blueBright("No allergens yet."));
     }
 
@@ -93,7 +90,9 @@ export async function addAllergen() {
 
     // double check if allergen already exists
     if (
-      allergens.find((allergen) => allergen.allergen == allergenPrompt.allergen)
+      allergens.find(
+        (allergen) => allergen.allergen === allergenPrompt.allergen
+      )
     ) {
       console.log(chalk.magentaBright("Allergen already exists."));
       process.exit(0);
