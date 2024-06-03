@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
- * View the food items from an establishment arranged according to price.
+ * Get the food items from an establishment arranged according to price.
  */
 export async function getItemsPriceOrder() {
   let conn;

@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
- * View all establishments with a high average rating (rating >= 4).
+ * Get all establishments with a high average rating (4 and above).
  */
 export async function getHighAveEstabs(){
   let conn;

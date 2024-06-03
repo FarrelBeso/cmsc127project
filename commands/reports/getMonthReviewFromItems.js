@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
- * View all food item review/s made within a month.
+ * Get all reviews for an item within a month.
  */
 export async function getMonthReviewFromItems(){
   let conn;
