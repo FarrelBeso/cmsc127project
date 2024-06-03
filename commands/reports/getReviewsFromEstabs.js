@@ -68,8 +68,8 @@ export async function getReviewsFromEstabs() {
     spinner.stop();
 
     // exit if there are none
-    if (establishments.length === 0) {
-      console.log(chalk.blueBright("No establishments found."));
+    if (reviews.length === 0) {
+      console.log(chalk.blueBright("No reviews found."));
       process.exit(0);
     }
 
