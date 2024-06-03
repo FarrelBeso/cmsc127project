@@ -22,7 +22,8 @@ export async function deleteAllergen() {
     spinner = ora("Fetching food items...").start();
     const items = await conn.query(
       "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
-      JOIN food_establishment e ON f.establishment_id=e.establishment_id"
+      JOIN food_establishment e ON f.establishment_id=e.establishment_id \
+      ORDER BY e.name, f.name"
     );
     spinner.stop();
 
