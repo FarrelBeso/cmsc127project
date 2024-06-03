@@ -4,8 +4,6 @@ import inquirer from "inquirer";
 import bcrypt from "bcrypt";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
-// TODO: Do not directly display the password when typing it
-// TODO: Password should be entered twice
 /**
  * Register a user.
  */
@@ -41,11 +39,11 @@ export async function register() {
         message: "Confirm your password:",
         type: "password",
       },
-      {
-        name: "usertype",
-        message: "Enter user type (user/admin):",
-        type: "input",
-      },
+      // {
+      //   name: "usertype",
+      //   message: "Enter user type (user/admin):",
+      //   type: "input",
+      // },
     ]);
 
     // Check if passwords match
@@ -53,10 +51,10 @@ export async function register() {
       throw "Passwords do not match.";
     }
 
-    // Check if usertype is valid
-    if (!['user', 'admin'].includes(answers.usertype)) {
-      throw "Invalid user type. Please enter 'user' or 'admin'.";
-    }
+    // // Check if usertype is valid
+    // if (!['user', 'admin'].includes(answers.usertype)) {
+    //   throw "Invalid user type. Please enter 'user' or 'admin'.";
+    // }
 
     // starting the spinner
     const spinner = ora("Creating account...").start();
@@ -68,7 +66,8 @@ export async function register() {
       [
         answers.firstName,
         answers.lastName,
-        answers.usertype, // Save the user type from input
+        // answers.usertype, // Save the user type from input
+        "user",
         answers.email,
         hashedPassword,
       ]
