@@ -2,6 +2,7 @@ import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
 import CliTable3 from "cli-table3";
+import { format } from "date-fns";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
@@ -58,7 +59,9 @@ export async function getReviewsFromEstabs() {
     spinner = ora("Fetching reviews from establishments...").start();
     // fetching all the establishments from the database
     const reviews = await conn.query(
-      "SELECT * FROM review where establishment_id=? ORDER BY review_date DESC",
+      "SELECT r.review_id, r.review_date, r.rating, r.description, u.first_name, u.last_name FROM review r \
+      JOIN user u ON r.user_id=u.user_id \
+      WHERE establishment_id=? ORDER BY review_date DESC",
       [establishmentIdPrompt.id]
     );
     // stopping the spinner
@@ -77,6 +80,7 @@ export async function getReviewsFromEstabs() {
         chalk.green("Review Date"),
         chalk.green("Rating"),
         chalk.green("Description"),
+        chalk.green("Reviewer"),
       ],
     });
     for (let tuple of reviews) {
@@ -85,6 +89,7 @@ export async function getReviewsFromEstabs() {
         format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
         tuple.rating,
         tuple.description,
+        `${tuple.first_name} ${tuple.last_name}`,
       ]);
     }
     console.log(table.toString());
