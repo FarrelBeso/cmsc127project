@@ -8,31 +8,66 @@ import { connectDB, disconnectDB } from "../../db/connectDB.js";
 /**
  * Get all reviews for an item within a month.
  */
-export async function getMonthReviewFromItems(){
-  let conn, table;
+export async function getMonthReviewFromItems() {
+  let conn, spinner, table;
   try {
     // connect to db
     conn = await connectDB();
+
+    // show all food items first with the allergen
+    spinner = ora("Fetching food items...").start();
+    const items = await conn.query(
+      "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
+      JOIN food_establishment e ON f.establishment_id=e.establishment_id \
+      ORDER BY e.name, f.name"
+    );
+    spinner.stop();
+
+    if (items.length === 0) {
+      console.log(chalk.blueBright("No food items yet."));
+      process.exit(0);
+    }
+
+    // show the tables otherwise
+    table = new CliTable3({
+      head: [
+        chalk.green("Food ID"),
+        chalk.green("Name"),
+        chalk.green("Establishment Name"),
+      ],
+    });
+    for (let tuple of items) {
+      table.push([tuple.food_id, tuple.name, tuple.establishment_name]);
+    }
+    console.log(table.toString());
+
     const answers = await inquirer.prompt([
       {
         name: "id",
         message: "Enter the id of the food item:",
         type: "input",
       },
-    ]); 
-        
+    ]);
+
     // starting the spinner
-    const spinner = ora("Fetching food item reviews...").start();
+    spinner = ora("Fetching food item reviews...").start();
     // getting all the food item reviews made within 30 days
-    const reviews = await conn.query("SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND food_id = ?",
-                                       [answers.id]);
+    const reviews = await conn.query(
+      "SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND food_id = ?",
+      [answers.id]
+    );
     // stopping the spinner
     spinner.stop();
 
-      // check if review/s exist or not
-    if (reviews.length === 0){
-      console.log(chalk.blueBright("There is no review/s for the item within the last 30 days."));
-    } 
+    // check if review/s exist or not
+    if (reviews.length === 0) {
+      console.log(
+        chalk.blueBright(
+          "There is no review/s for the item within the last 30 days."
+        )
+      );
+      process.exit(0);
+    }
 
     // show table here
     table = new CliTable3({
