@@ -4,32 +4,34 @@ import inquirer from "inquirer";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
- * View all food item review/s made within a month.
+ * View all food reviews from a food item.
  */
-export async function getMonthReviewFromItems(){
+export async function getReviewsFromItems() {
   let conn;
   try {
     // connect to db
     conn = await connectDB();
+    // first query the user on the id
     const answers = await inquirer.prompt([
       {
         name: "id",
         message: "Enter the id of the food item:",
         type: "input",
       },
-    ]); 
-        
+    ]);
+
     // starting the spinner
-    const spinner = ora("Fetching food item reviews...").start();
-    // getting all the food item reviews made within 30 days
-    const reviews = await conn.query("SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND food_id IS NOT NULL",
-                                       [answers.id]);
+    const spinner = ora("Fetching reviews from the food item...").start();
+    // fetching all the reviews from the database
+    const reviews = await conn.query("SELECT * FROM review where food_id=?", [
+      answers.id,
+    ]);
     // stopping the spinner
     spinner.stop();
 
-      // check if review/s exist or not
-    if (reviews.length === 0){
-      console.log(chalk.blueBright("There is no review/s for the item within the last 30 days."));
+    // check if reviews exist or not
+    if (reviews.length === 0) {
+      console.log(chalk.blueBright("Reviews not found."));
     } else {
       console.log(reviews);
     }

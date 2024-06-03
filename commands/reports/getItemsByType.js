@@ -1,13 +1,14 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
-import { connectDB, disconnectDB } from "../../../db/connectDB.js";
+import CliTable3 from "cli-table3";
+import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
- * Search for a food item based on type.
+ * Get all food items belonging to the specified type.
  */
-export async function getItemByType() {
-  let conn;
+export async function getItemsByType() {
+  let conn, table;
   try {
     // connect to db
     conn = await connectDB();
@@ -25,7 +26,8 @@ export async function getItemByType() {
     const spinner = ora("Searching food item...").start();
     // searching in the database
     const results = await conn.query(
-      "SELECT * FROM food_item WHERE type LIKE ?", [`%${answers.itemType}%`]
+      "SELECT * FROM food_item_type NATURAL JOIN food_item WHERE type LIKE ?",
+      [`%${answers.itemType}%`],
     );
     // stopping the spinner
     spinner.stop();
@@ -33,10 +35,24 @@ export async function getItemByType() {
     if (results.length === 0) {
       console.log(chalk.redBright("No food items found."));
     } else {
-      console.log(chalk.greenBright("Food items found:"));
-      results.forEach(item => {
-        console.log(`- ${item.name}, ${item.price}`);
-      });
+      // show table here
+    table = new CliTable3({
+      head: [
+        chalk.green("Food ID"),
+        chalk.green("Name"),
+        chalk.green("Price"),
+        chalk.green("Establishment ID"),
+      ],
+    });
+    for (let tuple of results) {
+      table.push([
+        tuple.food_id,
+        tuple.name,
+        tuple.price,
+        tuple.establishment_id,
+      ]);
+    }
+    console.log(table.toString());
     }
 
     await disconnectDB(conn);

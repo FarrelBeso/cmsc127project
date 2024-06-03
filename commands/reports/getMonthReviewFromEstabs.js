@@ -1,13 +1,15 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
+import { format } from "date-fns";
 import { connectDB, disconnectDB } from "../../db/connectDB.js";
 
 /**
- * View all establishment reviews made within a month.
+ * Get all reviews for an establishment within a month.
  */
 export async function getMonthReviewFromEstabs(){
-  let conn;
+  let conn, table;
     try {
       // connect to db
       conn = await connectDB();
@@ -22,7 +24,7 @@ export async function getMonthReviewFromEstabs(){
       // starting the spinner
       const spinner = ora("Fetching establishment reviews...").start();
       // getting all the establishment reviews made within 30 days
-      const reviews = await conn.query("SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND establishment_id IS NOT NULL",
+      const reviews = await conn.query("SELECT * FROM review WHERE (review_date >= CURDATE() - INTERVAL 30 DAY) AND establishment_id = ?",
                                        [answers.id]);
       // stopping the spinner
       spinner.stop();
@@ -30,9 +32,31 @@ export async function getMonthReviewFromEstabs(){
       // check if review/s exist or not
       if (reviews.length === 0){
         console.log(chalk.blueBright("There is no review/s for the establishment within the last 30 days."));
-      } else {
-          console.log(reviews);
-        }
+      }
+
+      // show table here
+      table = new CliTable3({
+        head: [
+          chalk.green("Review ID"),
+          chalk.green("Review Date"),
+          chalk.green("Rating"),
+          chalk.green("Description"),
+          chalk.green("Establishment ID"),
+          chalk.green("User ID"),
+        ],
+      });
+      for (let tuple of reviews) {
+        table.push([
+          tuple.review_id,
+          format(tuple.review_date.toString(), "yyyy-MM-dd HH:mm:ss"),
+          tuple.rating,
+          tuple.description,
+          tuple.establishment_id,
+          tuple.user_id,
+        ]);
+      }
+      console.log(table.toString());
+
       await disconnectDB(conn);
     } catch (error) {
       // Error Handling

@@ -97,6 +97,26 @@ program
   .action(reports.getAllEstabs);
 
 program
+  .command("get-high-ave-estabs")
+  .description("Get all establishments with a high rating (4 and above).")
+  .action(reports.getHighAveEstabs);
+
+program
+  .command("get-items-by-price")
+  .description("Get all food items within a set price range.")
+  .action(reports.getItemsByPrice);
+
+program
+  .command("get-items-by-price-type")
+  .description("Get all food items belonging to the specified type and within a set price range.")
+  .action(reports.getItemsByPriceType);
+
+program
+  .command("get-items-by-type")
+  .description("Get all food items belonging to the specified type.")
+  .action(reports.getItemsByType);
+
+program
   .command("get-items-from-estab")
   .description("Get food items from an establishment.")
   .action(reports.getItemsFromEstab);
@@ -105,6 +125,21 @@ program
   .command("get-items-from-estab-food-type")
   .description("Get food items from an establishment with a given food type/s.")
   .action(reports.getItemsFromEstabFoodType);
+
+program
+  .command("get-items-price-order")
+  .description("Get the food items from an establishment arranged according to price.")
+  .action(reports.getItemsPriceOrder);
+
+program
+  .command("get-month-review-from-estabs")
+  .description("Get all reviews for an establishment within a month.")
+  .action(reports.getMonthReviewFromEstabs);
+
+program
+  .command("get-month-review-from-item")
+  .description("Get all reviews for an item within a month.")
+  .action(reports.getMonthReviewFromItems);
 
 program
   .command("get-reviews-from-estabs")
