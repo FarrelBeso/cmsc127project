@@ -1,13 +1,14 @@
 import chalk from "chalk";
 import ora from "ora";
 import inquirer from "inquirer";
+import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 
 /**
  * Search for a food item.
  */
 export async function searchItem() {
-  let conn;
+  let conn, table;
   try {
     // connect to db
     conn = await connectDB();
@@ -16,7 +17,7 @@ export async function searchItem() {
     const answers = await inquirer.prompt([
       {
         name: "searchTerm",
-        message: "Enter the name or type of the food item to search:",
+        message: "Enter the name of the food item to search:",
         type: "input",
       },
     ]);
@@ -25,20 +26,32 @@ export async function searchItem() {
     const spinner = ora("Searching food item...").start();
     // searching in the database
     const results = await conn.query(
-      "SELECT * FROM food_item WHERE name LIKE ? OR type LIKE ?",
-      [`%${answers.searchTerm}%`, `%${answers.searchTerm}%`]
+      "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
+      JOIN food_establishment e ON f.establishment_id=e.establishment_id \
+      WHERE f.name LIKE ? \
+      ORDER BY e.name, f.name",
+      [`%${answers.searchTerm.toLowerCase()}%`]
     );
     // stopping the spinner
     spinner.stop();
 
     if (results.length === 0) {
-      console.log(chalk.redBright("No food items found."));
-    } else {
-      console.log(chalk.greenBright("Food items found:"));
-      results.forEach(item => {
-        console.log(`- ${item.name}, ${item.price}, ${item.type}`);
-      });
+      console.log(chalk.blueBright("No food items found."));
+      process.exit(0);
     }
+
+    // show table
+    table = new CliTable3({
+      head: [
+        chalk.green("Food ID"),
+        chalk.green("Name"),
+        chalk.green("Establishment Name"),
+      ],
+    });
+    for (let tuple of results) {
+      table.push([tuple.food_id, tuple.name, tuple.establishment_name]);
+    }
+    console.log(table.toString());
 
     await disconnectDB(conn);
   } catch (error) {
