@@ -54,7 +54,7 @@ export async function deleteAllergen() {
     ]);
 
     // check if there is food id in the fetched items
-    if (!items.find((item) => item.id == foodIdPrompt.id)) {
+    if (!items.find((item) => item.food_id == foodIdPrompt.id)) {
       console.log(chalk.magentaBright("Food id not found."));
       process.exit(0);
     }
@@ -69,19 +69,16 @@ export async function deleteAllergen() {
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [
-        chalk.green("Food ID"),
-        chalk.green("Name"),
-        chalk.green("Establishment Name"),
-      ],
+      head: [chalk.green("Allergen")],
     });
-    for (let tuple of items) {
-      table.push([tuple.food_id, tuple.name, tuple.establishment_name]);
+    for (let tuple of allergens) {
+      table.push([tuple.allergen]);
     }
     console.log(table.toString());
 
-    if (items.length === 0) {
+    if (allergens.length === 0) {
       console.log(chalk.blueBright("No allergens yet."));
+      process.exit(0);
     }
 
     const allergenPrompt = await inquirer.prompt([
@@ -92,24 +89,26 @@ export async function deleteAllergen() {
       },
     ]);
 
-    // double check if allergen already exists
+    // double check if allergen doesn't exist
     if (
-      allergens.find((allergen) => allergen.allergen == allergenPrompt.allergen)
+      !allergens.find(
+        (allergen) => allergen.allergen == allergenPrompt.allergen
+      )
     ) {
-      console.log(chalk.magentaBright("Allergen already exists."));
+      console.log(chalk.magentaBright("Allergen does not exist."));
       process.exit(0);
     }
 
-    // insert to db
-    spinner = ora("Adding allergen...").start();
+    // delete to db
+    spinner = ora("Delete allergen...").start();
     await conn.query(
-      "INSERT INTO food_item_allergen (food_id, allergen) VALUES (?, ?)",
+      "DELETE FROM food_item_allergen WHERE food_id=? AND allergen=?",
       [foodIdPrompt.id, allergenPrompt.allergen]
     );
     spinner.stop();
 
     // confirm operation
-    console.log(chalk.greenBright("Allergen added successfully!"));
+    console.log(chalk.greenBright("Allergen deleted successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
