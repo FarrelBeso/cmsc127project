@@ -20,10 +20,9 @@ export async function updateItem() {
     }
 
     // show all items
-    // show all food items first with the allergen
     spinner = ora("Fetching food items...").start();
     const items = await conn.query(
-      "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
+      "SELECT f.food_id, f.name, f.price, f.availability, e.name establishment_name, e.establishment_id FROM food_item f \
   JOIN food_establishment e ON f.establishment_id=e.establishment_id \
   ORDER BY e.name, f.name"
     );
@@ -39,11 +38,21 @@ export async function updateItem() {
       head: [
         chalk.green("Food ID"),
         chalk.green("Name"),
+        chalk.green("Price (PhP)"),
+        chalk.green("Availability"),
         chalk.green("Establishment Name"),
+        chalk.green("Establishment ID"),
       ],
     });
     for (let tuple of items) {
-      table.push([tuple.food_id, tuple.name, tuple.establishment_name]);
+      table.push([
+        tuple.food_id,
+        tuple.name,
+        tuple.price,
+        tuple.availability == 1 ? "Available" : "Not Available",
+        tuple.establishment_name,
+        tuple.establishment_id,
+      ]);
     }
     console.log(table.toString());
 
@@ -100,7 +109,7 @@ export async function updateItem() {
         updateAnswers.name,
         updateAnswers.price,
         updateAnswers.availability,
-        updateAnswers.establishment_id,
+        updateAnswers.establishmentId,
         answers.id,
       ]
     );

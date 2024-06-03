@@ -26,7 +26,7 @@ export async function searchItem() {
     const spinner = ora("Searching food item...").start();
     // searching in the database
     const results = await conn.query(
-      "SELECT f.food_id, f.name, e.name establishment_name FROM food_item f \
+      "SELECT f.food_id, f.name, f.price, f.availability, e.name establishment_name FROM food_item f \
       JOIN food_establishment e ON f.establishment_id=e.establishment_id \
       WHERE f.name LIKE ? \
       ORDER BY e.name, f.name",
@@ -45,11 +45,19 @@ export async function searchItem() {
       head: [
         chalk.green("Food ID"),
         chalk.green("Name"),
+        chalk.green("Price (PhP)"),
+        chalk.green("Availability"),
         chalk.green("Establishment Name"),
       ],
     });
     for (let tuple of results) {
-      table.push([tuple.food_id, tuple.name, tuple.establishment_name]);
+      table.push([
+        tuple.food_id,
+        tuple.name,
+        tuple.price,
+        tuple.availability == 1 ? "Available" : "Not Available",
+        tuple.establishment_name,
+      ]);
     }
     console.log(table.toString());
 
