@@ -6,7 +6,7 @@ import { connectDB, disconnectDB } from "../../../db/connectDB.js";
 /**
  * Search for a food item based on price.
  */
-export async function getItemByPrice() {
+export async function getItemsByPrice() {
   let conn;
   try {
     // connect to db
