@@ -112,7 +112,7 @@ export async function addOwner() {
     spinner.stop();
 
     // confirm operation
-    console.log(chalk.greenBright("Contact added successfully!"));
+    console.log(chalk.greenBright("Owner added successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling

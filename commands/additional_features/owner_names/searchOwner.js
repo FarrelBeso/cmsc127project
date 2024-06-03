@@ -3,9 +3,10 @@ import ora from "ora";
 import inquirer from "inquirer";
 import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
+import { login } from "../auth_cmds.js";
 
 /**
- * Search contact person.
+ * Search owner.
  */
 export async function searchOwner() {
   let conn, spinner, table;
@@ -64,26 +65,28 @@ export async function searchOwner() {
     }
 
     // show the contacts
-    spinner = ora("Fetching contact persons...").start();
-    const contactPersons = await conn.query(
-      "SELECT contact_person FROM food_establishment_contact_person WHERE establishment_id=?",
+    spinner = ora("Fetching owners...").start();
+    const owners = await conn.query(
+      "SELECT owner_name FROM food_establishment_owner_name WHERE establishment_id=?",
       [establishmentIdPrompt.id]
     );
     spinner.stop();
 
     // show the tables otherwise
     table = new CliTable3({
-      head: [chalk.green("Contact Person")],
+      head: [chalk.green("Owner")],
     });
-    for (let tuple of contactPersons) {
-      table.push([tuple.contact_person]);
+    for (let tuple of owners) {
+      table.push([tuple.owner_name]);
     }
     console.log(table.toString());
 
-    if (contactPersons.length === 0) {
-      console.log(chalk.blueBright("No contact persons yet."));
+    if (owners.length === 0) {
+      console.log(chalk.blueBright("No owners yet."));
     }
 
+    // confirm operation
+    console.log(chalk.greenBright("Owner added successfully!"));
     await disconnectDB(conn);
   } catch (error) {
     // Error Handling
