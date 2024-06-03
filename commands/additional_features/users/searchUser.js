@@ -3,6 +3,7 @@ import ora from "ora";
 import inquirer from "inquirer";
 import CliTable3 from "cli-table3";
 import { connectDB, disconnectDB } from "../../../db/connectDB.js";
+import { login } from "../../additional_features/auth_cmds.js";
 
 /**
  * Search for a user.
